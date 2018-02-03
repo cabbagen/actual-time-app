@@ -1,0 +1,42 @@
+extends ../base/base.pug
+
+block styles
+  link(href="/static/library/layui/css/layui.css" rel="stylesheet" type="text/css")
+  link(href="/static/styles/index.css" rel="stylesheet" type="text/css")
+
+block content
+  h2.title Hello Welcome!
+
+  p.description 欢迎来到实时系统平台
+
+  ul.content
+    each project in projects
+      li
+        a(href=project.link) #{project.name}
+        
+  div.opecate
+    a(href="#") 注册
+    a.login(href="javascript:;") 登录
+
+  p.footer 沐拾柒工作室 &copy; 2017-08-12 
+
+  #login-modal
+    form#login-form(action="/login" method="post")
+      .login-modal-row
+        label(for="username") 用户名
+        input(type="text" name="username" placeholder="请输入用户名")/
+        em.error.username-error 你输入的用户错误
+      .login-modal-row
+        label(for="password") 密码
+        input(type="password" name="password" placeholder="请输入密码")/
+        em.error.password-error 你输入的密码错误
+      .login-modal-row
+        label(for="validateImageText") 验证码
+        img.validateImage(src="/getCaptcha" alt="验证码")
+        input.validateImageText(type="text" name="validateImageText" placeholder="请输入验证码")
+        em.error.captcha-error 你输入的验证码错误
+        
+    
+block scripts
+  script(src="/static/library/layui/layui.js" type="text/javascript")
+  script(src="/static/javascript/index.js?23" type="text/javascript")

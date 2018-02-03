@@ -1,0 +1,136 @@
+.title {
+  margin-top: 50px;
+  &, & + p {
+    text-align: center;
+    padding-top: 10px;
+  }
+}
+
+.content {
+  width: 1000px;
+  height: 200px;
+  display: flex;
+  margin: 70px auto 0 auto;
+  justify-content: space-around;
+  
+  &, & > li {
+    list-style: none;
+  }
+
+  li a {
+    width: 250px;
+    height: 150px;
+    line-height: 150px;
+    display: block;
+    text-align: center;
+    background-color: #eeeeee;
+    border: 1px solid #cccccc;
+    color: #555555;
+    text-decoration: none;
+
+    &:hover {
+      background-color: #cccccc;
+    }
+    &:hover, &:visited, &:active, &:link {
+      text-decoration: none;
+    }
+  }
+}
+.opecate {
+  margin: 80px auto;
+  text-align: center;
+
+  > a {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-align: center;
+    width: 100px;
+    background-color: #eeeeee;
+    margin: 0px 20px;
+
+    &:hover {
+      background-color: #dddddd;
+      color: skyblue;
+      transition: background-color .2s linear;
+    }
+    &:hover, &:visited, &:active, &:link {
+      text-decoration: none;
+    }
+  }
+}
+
+.footer {
+  color: #555555;
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#login-modal {
+  display: none;
+
+  .login-modal-row {
+    display: flex;
+    margin: 10px 0px;
+    align-content: space-between;
+    line-height: 35px;
+    line-height: 35px;
+
+    label {
+      width: 60px;
+      display: inline-block;
+      text-align: right;
+      line-height: 30px;
+      margin-right: 20px;
+    }
+    input {
+      display: inline-block;
+      border-radius: 3px;
+      outline: none;
+      padding-left: 5px;
+      border: 1px solid #eeeeee;
+      width: 300px;
+      height: 30px;
+      line-height: 30px;
+    }
+    .error {
+      color: red;
+      display: inline-block;
+      line-height: 30px;
+      font-size: 12px;
+      margin-left: 5px;
+      display: none;
+    }
+    .validateImage {
+      width: 80px;
+      height: 30px;
+      line-height: 30px;
+      border: 1px solid #cccccc;
+      margin-right: 20px;
+      display: inline-block;
+    }
+    .validateImageText {
+      width: 100px;
+      margin-right: 50px;
+    }
+    button {
+      height: 35px;
+      line-height: 0px;
+      margin: 20px 20px 0 80px;
+      border: 1px solid #eeeeee;
+      border-radius: 3px;
+      padding: 10px 20px;
+
+      & + button {
+        margin-left: 0px;
+      }
+
+      &:hover {
+        border-color: skyblue;
+        color: skyblue;
+      }
+    }
+  }
+}

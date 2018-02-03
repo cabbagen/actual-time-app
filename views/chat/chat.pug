@@ -1,0 +1,12 @@
+extends ../base/base.pug
+
+block content
+  h2 hello welcome
+  p This is chat, you can talk with other !
+
+  script(src="/socket.io/socket.io.js" type="text/javascript")
+
+block scripts
+  script(type="text/javascript").
+    var socket = io();
+    console.log(socket);

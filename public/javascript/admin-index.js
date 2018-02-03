@@ -1,0 +1,1 @@
+layui.use("element",function(){var e=layui.element;console.log(e)});

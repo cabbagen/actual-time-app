@@ -1,0 +1,50 @@
+extends ../base/admin-base.pug
+
+block styles
+
+block content
+  .layui-layout.body
+    .layui-layout.layui-layout-admin
+      
+      .layui-header
+        .layui-logo ACT 管理后台
+        ul.layui-nav.layui-layout-right
+          li.layui-nav-item
+            a(href="javascript:;")
+              img.layui-nav-img(src="http://t.cn/RCzsdCq")
+              span suxia
+            dl.layui-nav-child
+              dd
+                a(href="#") 基本资料
+              dd
+                a(href="#") 安全设置
+          li.layui-nav-item
+            a(href="#") 退出
+      
+      .layui-side.layui-bg-black
+        .layui-side-scroll
+          ul.layui-nav.layui-nav-tree
+            li.layui-nav-item.layui-nav-itemed
+              a(href="#") 快速开始
+              dl.layui-nav-child
+                dd
+                  a(href="javascript:;") 列表一
+                dd
+                  a(href="javascript:;") 列表二
+            li.layui-nav-item.layui-nav-itemed
+              a(href="#") API
+              dl.layui-nav-child
+                dd.layui-this
+                  a(href="javascript:;") 列表一
+                dd
+                  a(href="javascript:;") 列表二
+      
+      .layui-body
+        div(style="padding: 15px;") 内容主题区域
+
+      .layui-footer
+        span 底部固定区域
+      
+block scripts
+  script(type="text/javascript" src="/static/javascript/admin-index.js")
+    
