@@ -65,13 +65,18 @@ LoginLayer.prototype = {
   },
 
   _loginForm: function() {
+    $('.error', '#login-modal').hide();
     $.ajax({
       method: 'POST',
       url: '/login',
       data: $('#login-form').serialize(),
       dataType: 'json',
       success: function(data) {
-        console.log('data', data);
+        if (data.status === 200) {
+          window.location.href = '/admin';
+        } else {
+          $('.' + data.type).show();
+        }
       },
     })
 

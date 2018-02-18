@@ -1,7 +1,8 @@
-const co = require('co');
 const BaseController = require('./base.controller.js');
 const captchaProvider = require('../providers/captcha.provider.js');
-
+const cryptoProvider = require('../providers/crypto.provider.js');
+const utilsProvider = require('../providers/utils.provider.js');
+const UsersModel = require('../model/users.model.js');
 
 class IndexController extends BaseController {
 
@@ -31,8 +32,38 @@ class IndexController extends BaseController {
   }
 
   login(req, res, next) {
-    const params = req.body;
-    res.json({ status: 200, msg: 'ok', data: params });
+    const { username, password, validateImageText } = req.body;
+    const sessionCaptcha = req.session.captcha;
+    const isPassCheckValidateImageText = this.checkValidateImageText(sessionCaptcha, validateImageText);
+
+    if (!isPassCheckValidateImageText) {
+      res.json({ status: '500', data: null, msg: '验证码错误', type: 'captcha-error' });
+      return;
+    }
+
+    const passwordHash = cryptoProvider.getSaledHashSync(password);
+
+    UsersModel.findOne({ username }).exec()
+      .then(function(data) {
+        if (cryptoProvider.compareSaledHashSync(password, passwordHash)) {
+          req.session.userId = data._id;
+          res.json({ status: 200, data, msg: 'ok', type: null });
+        } else {
+          res.json({ status: 500, data: null, msg: '输入密码错误', type: 'password-error' });
+        }
+      })
+      .catch(function(error) {
+        console.log(error);
+        res.json({ status: 500, msg: '数据库查询失败!', data: null, type: 'username-error' });
+      });
+  }
+
+  checkValidateImageText(sessionCaptcha, validateImageText) {
+    if (!validateImageText || validateImageText === '') {
+      return false;
+    }
+
+    return sessionCaptcha === validateImageText;
   }
 }
 

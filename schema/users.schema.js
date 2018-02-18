@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const cryptoProvider = require('../providers/crypto.provider.js');
+const utilsProvider = require('../providers/utils.provider.js');
+
 const Schema = mongoose.Schema;
 
 const usersSchema = new Schema({
@@ -13,5 +16,13 @@ const usersSchema = new Schema({
   nickname: String,
   appKey: String,
 });
+
+usersSchema.statics.createUser = function(params) {
+  const realParams = Object.assign({}, params, {
+    password: cryptoProvider.getSaledHashSync(params.password),
+    appKey: utilsProvider.makeRandomAppkey(),
+  });
+  return this.create(realParams).exec();
+}
 
 module.exports = usersSchema;

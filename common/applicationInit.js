@@ -29,10 +29,9 @@ function registeRouter(routerMap) {
     for(const subProp in routerMap[prop]) {
       const hasRouteMiddleware = routerMap[prop][subProp] instanceof Array;
       if (hasRouteMiddleware) {
-        const params = [subProp].concat(routerMap[prop][subProp]);
-        router[prop].apply(router, params);
+        router[prop](subProp, ...routerMap[prop][subProp]);
       } else {
-        router[prop](subProp, routerMap[prop][subProp]);      
+        router[prop](subProp, routerMap[prop][subProp]);
       }
     }
   }
