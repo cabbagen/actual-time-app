@@ -7,6 +7,7 @@ const routerMap = {
     ['/index']: indexController.renderIndex.bind(indexController),
     ['/chat']: chatController.renderChat.bind(chatController),
     ['/getCaptcha']: indexController.getCaptcha.bind(indexController),
+    ['/register']: indexController.renderRegister.bind(indexController),
   },
   post: {
     ['/login']: indexController.login.bind(indexController),

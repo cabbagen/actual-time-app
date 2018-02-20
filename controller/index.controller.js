@@ -65,6 +65,10 @@ class IndexController extends BaseController {
 
     return sessionCaptcha === validateImageText;
   }
+
+  renderRegister(req, res) {
+    res.render('index/register');
+  }
 }
 
 module.exports = IndexController;
