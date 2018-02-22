@@ -1,0 +1,1 @@
+$("button",".footer").on("click",function(){console.log("=====>")}),$(".icon-upload").on("click",function(){$(this).next("input").click()}),$(".icon-upload").next("input").on("change",function(){var n=$(this)[0].files[0],o=new FormData;o.append("imgFile",n),$.ajax({url:"/uploadImg",type:"POST",data:o,contentType:!1,processData:!1,success:function(n){alert(n)}})});

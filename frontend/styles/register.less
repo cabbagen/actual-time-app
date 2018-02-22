@@ -15,6 +15,21 @@
   }
 }
 
+.container {
+  width: 820px;
+  margin: 0 auto;
+}
+.col-md-4, .col-md-8 {
+  display: inline-block;
+}
+.col-md-4 {
+  width: 120px;
+}
+.col-md-8 {
+  width: 700px;
+}
+
+
 .custom-row, .custom-radio-row {
   line-height: 200%;
   margin: 40px 0px;
@@ -29,6 +44,10 @@
     border: 1px solid #cccccc;
     padding-left: 5px;
   }
+  .uploadField {
+    width: 470px;
+    border-radius: 3px 0px 0px 3px;
+  }
 }
 
 .custom-radio-row {
@@ -42,15 +61,33 @@
 }
 
 .custom-textarea-row {
+  .col-md-4 {
+    float: left;
+  }
   textarea {
     border: 1px solid #cccccc;
     border-radius: 3px;
+    padding: 5px;
   }
 }
 
 .error {
   margin-left: 20px;
   color: red;
+  display: none;
+}
+
+.icon-upload {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  background: url("/static/images/upload.png") no-repeat #d2d2d2;
+  background-size: cover;
+  position: relative;
+  top: 11px;
+  border: 1px solid #cccccc;
+  border-radius: 0 3px 3px 0px;
+  cursor: pointer;
 }
 
 .footer {
@@ -65,6 +102,7 @@
     width: 120px;
     height: 40px;
     line-height: 39px;
+    cursor: pointer;
 
     &:hover {
       background-color: rgb(33, 149, 250);

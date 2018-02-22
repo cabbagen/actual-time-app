@@ -9,61 +9,65 @@ block content
       .logo ACTUAL-TIME  
   
   section.container
-    .row.custom-row
-      .col-md-3.col-md-offset-1
-        label(for="username") 用户名
-      .col-md-8
-        input(type="text" name="username" placeholder="请输入用户名称")/
-        span.error 该用户名已被注册使用
+    form(action="#" method="POST" enctype="multipart/form-data")
+      .row.custom-row
+        .col-md-4
+          label(for="username") 用户名
+        .col-md-8
+          input(type="text" name="username" placeholder="请输入用户名称")/
+          span.error 该用户名已被注册使用
 
-    .row.custom-row
-      .col-md-3.col-md-offset-1
-        label(for="nickname") 昵称
-      .col-md-8
-        input(type="text" name="nickname" placeholder="请输入用户昵称")/
-        span.error
+      .row.custom-row
+        .col-md-4
+          label(for="nickname") 昵称
+        .col-md-8
+          input(type="text" name="nickname" placeholder="请输入用户昵称")/
+          span.error
 
-    .row.custom-row
-      .col-md-3.col-md-offset-1
-        label(for="password") 密码
-      .col-md-8
-        input(type="password" name="password" placeholder="请输入密码")/
-        span.error
+      .row.custom-row
+        .col-md-4
+          label(for="password") 密码
+        .col-md-8
+          input(type="password" name="password" placeholder="请输入密码")/
+          span.error
 
-    .row.custom-row
-      .col-md-3.col-md-offset-1
-        label(for="avator") 头像
-      .col-md-8
-        input(type="text" name="username" placeholder="请输入用户名称")/
-        span.error
+      .row.custom-row
+        .col-md-4
+          label(for="avator") 头像
+        .col-md-8
+          input.uploadField(type="text" name="avator" placeholder="请上传头像" disabled="disabled")/
+          span.icon-upload
+          input(type="file" name="avatorImg" style="display: none;")
+          span.error
 
-    .row.custom-row
-      .col-md-3.col-md-offset-1
-        label(for="email") 邮箱
-      .col-md-8
-        input(type="email" name="email" placeholder="请输入邮箱地址")/
-        span.error 请输入合法的 email 地址
+      .row.custom-row
+        .col-md-4
+          label(for="email") 邮箱
+        .col-md-8
+          input(type="email" name="email" placeholder="请输入邮箱地址")/
+          span.error 请输入合法的 email 地址
 
-    .row.custom-radio-row
-      .col-md-3.col-md-offset-1
-        label(for="gender") 性别
-      .col-md-8
-        input(type="radio" name="gender" value="1" )/
-        span 男
-        input(type="radio" name="gender" value="2" )/
-        span 女
-        input(type="radio" name="gender" value="0" )/
-        span 未知
-        span.error 
-    
-    .row.custom-textarea-row
-      .col-md-3.col-md-offset-1
-        label(for="extra") 个性签名
-      .col-md-8
-        textarea(name="extra" rows="4" cols="70" )
-        span.error 
+      .row.custom-radio-row
+        .col-md-4
+          label(for="gender") 性别
+        .col-md-8
+          input(type="radio" name="gender" value="1" )/
+          span 男
+          input(type="radio" name="gender" value="2" )/
+          span 女
+          input(type="radio" name="gender" value="0" checked="checked")/
+          span 未知
+          span.error 
+      
+      .row.custom-textarea-row
+        .col-md-4
+          label(for="extra") 个性签名
+        .col-md-8
+          textarea(name="extra" rows="5" cols="70" placeholder="请输入个性签名" )
+          span.error 
 
   section.footer
     button(type="button") 提交保存
 
 block scripts
+  script(src="/static/javascript/register.js" type="text/javascript")
