@@ -44,7 +44,7 @@ class IndexController extends BaseController {
     const passwordHash = cryptoProvider.getSaledHashSync(password);
 
     UsersModel.findOne({ username }).exec()
-      .then(function(data) {
+      .then((data) => {
         if (cryptoProvider.compareSaledHashSync(password, passwordHash)) {
           req.session.userId = data._id;
           res.json({ status: 200, data, msg: 'ok', type: null });
@@ -52,8 +52,7 @@ class IndexController extends BaseController {
           res.json({ status: 500, data: null, msg: '输入密码错误', type: 'password-error' });
         }
       })
-      .catch(function(error) {
-        console.log(error);
+      .catch((error) => {
         res.json({ status: 500, msg: '数据库查询失败!', data: null, type: 'username-error' });
       });
   }

@@ -10,6 +10,16 @@ class RegisterController extends BaseController {
   registerUser(req, res) {
 
   }
+
+  uploadImg(req, res) {
+    super.uploadImg(req, res, (error, imgUploadPaths) => {
+      if (error) {
+        res.json({ status: 500, data: null, msg: '图片上传失败' });
+      }
+
+      res.json({ status: 200, data: imgUploadPaths, msg: '图片上传成功' })
+    });
+  }
 }
 
 module.exports = RegisterController;

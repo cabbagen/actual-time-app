@@ -21,7 +21,11 @@ $('.icon-upload').next('input').on('change', function() {
     contentType: false,
     processData: false,
     success: function (result) {
-      alert(result);
+      if (result.status === 200) {
+        $('.uploadField').val(result.data[0]);
+      } else {
+        alert(result.msg);
+      }
     },
   });
 

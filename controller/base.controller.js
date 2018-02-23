@@ -8,17 +8,27 @@ class BaseController {
   
   constructor() {
     this.storageDir = path.resolve(__dirname, '../storage');
+    this.replaceBasePath = path.resolve(__dirname, '../');
   }
 
   uploadFile() {
     console.log('this is file upload handle');
   }
 
-  uploadImg(req, res) {
+  uploadImg(req, res, callback) {
     const uploadImgDir = path.resolve(this.storageDir, 'images');
+    const form = new multiparty.Form({ uploadDir: uploadImgDir });
 
-    console.log(uploadImgDir)
+    form.parse(req, (err, fields, files) => {
+      if (err) callback(err, null);
+      const imgUploadPaths = files.imgFile.map(imgFile => imgFile.path.replace(this.replaceBasePath, '/static'));
 
+      callback(null, imgUploadPaths);
+    });
+
+    form.on('error', (err) => {
+      callback(err, null);
+    });
   }
 
 
