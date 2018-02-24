@@ -4,6 +4,7 @@ const { registeRouter } = require('../common/applicationInit.js');
 const routerMap = {
   post: {
     ['/uploadImg']: registerController.uploadImg.bind(registerController),
+    ['/registeUser']: registerController.registeUser.bind(registerController),
   }
 };
 

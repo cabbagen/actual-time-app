@@ -48,8 +48,25 @@ function makeRandomAppkey() {
 
 }
 
+/**
+ * 网址检验
+ * @param {String} websiteAddress - 检验网址 返回 true or false
+ * @return {Blooen}
+ */
+function checkWebsiteAddress(websiteAddress) {
+  const regExp = /^(((https?\:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/g;
+  const type = checkType(websiteAddress);
+  if (type === 'String') {
+    return regExp.test(websiteAddress);
+  } else {
+    throw new Error('checkWebsiteAddress 函数需要传入字符串');
+  }
+}
+
+
 module.exports = {
   checkType,
   getRandomRange,
-  makeRandomAppkey
+  makeRandomAppkey,
+  checkWebsiteAddress,
 };

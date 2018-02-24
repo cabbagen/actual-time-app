@@ -9,7 +9,7 @@ block content
       .logo ACTUAL-TIME  
   
   section.container
-    form(action="#" method="POST" enctype="multipart/form-data")
+    form.form(action="/registeUser" method="POST")
       .row.custom-row
         .col-md-4
           label(for="username") 用户名
@@ -35,9 +35,9 @@ block content
         .col-md-4
           label(for="avator") 头像
         .col-md-8
-          input.uploadField(type="text" name="avator" placeholder="请上传头像" disabled="disabled")/
+          input.uploadAvator(type="text" name="avator" placeholder="请上传头像" value="")/
           span.icon-upload
-          input(type="file" name="avatorImg" style="display: none;")
+          input.uploadFile(type="file" name="avatorImg" style="display: none;")
           span.error
 
       .row.custom-row
