@@ -23,7 +23,7 @@ class RegisterController extends BaseController {
       if (isExistUser) res.json({ status: 500, msg: '用户已存在', data: null });
       UsersModel.createUser(userInfo, (error, data) => {
         if (error) {
-          res.json({ status: 500, msg: '数据库保存失败!', data: null });
+          res.json({ status: 500, msg: '数据库保存失败, 更换用户名试试!', data: null });
         } else {
           res.json({ status: 200, msg: '操作成功', data });
         }
