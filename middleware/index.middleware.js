@@ -1,6 +1,6 @@
 const bodyparser = require('./bodyparser.middleware.js');
 const session = require('./session.middleware.js');
-
+const login = require('./login.middleware.js');
 
 module.exports = {
   normal: {
@@ -9,5 +9,6 @@ module.exports = {
   },
   custom: {
     session,
+    login,
   }
 };
