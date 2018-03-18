@@ -1,9 +1,9 @@
 const fs = require('fs');
 const express = require('express');
 
-function _getRouterFiles() {
-  const controllerFiles = fs.readdirSync('./router/');
-  return controllerFiles.map(filePath => `../router/${filePath}`);
+function _getRouterFiles(routerDirName) {
+  const routerFiles = fs.readdirSync(`./${routerDirName}/`);
+  return routerFiles ? routerFiles.map(filePath => `../${routerDirName}/${filePath}`) : [];
 }
 
 function applicationInit(app, isAccrossHost) {
@@ -16,8 +16,11 @@ function applicationInit(app, isAccrossHost) {
       next();
     });
   }
-  const controllerFiles = _getRouterFiles();
-  controllerFiles.forEach((filePath) => {
+
+  const webRouterFiles = _getRouterFiles('web-router');
+  const apiRouterFiles = _getRouterFiles('api-router');
+
+  webRouterFiles.concat(apiRouterFiles).forEach((filePath) => {
     const router = require(filePath);
     app.use(router.router);
   });
@@ -51,7 +54,6 @@ function registeMiddleware(app, middlewares) {
   }
   
   app.use(normalMiddlewares, specialMiddlewares);
-  
 }
 
 module.exports = { applicationInit, registeRouter, registeMiddleware };
