@@ -31,6 +31,8 @@ function createToken(projectName) {
  * 验证子项目的 token
  * @param {String} projectName - 子项目名称
  * @param {String} token - 需要验证的 token
+ * 
+ * @return {Object} - status === 0 => ok, msg => 错误信息
  */
 function validateToken(projectName, token) {
   if (utils.checkType(token) !== 'String') {

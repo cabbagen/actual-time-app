@@ -68,6 +68,10 @@ class IndexController extends BaseController {
   renderRegister(req, res) {
     res.render('index/register');
   }
+
+  renderChat(req, res) {
+    res.render('chat/chat');
+  }
 }
 
 module.exports = IndexController;

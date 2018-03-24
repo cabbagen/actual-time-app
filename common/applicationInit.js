@@ -38,6 +38,7 @@ function registeRouter(routerMap) {
       }
     }
   }
+
   return { router };
 }
 
