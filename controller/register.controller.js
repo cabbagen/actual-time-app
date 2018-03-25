@@ -26,7 +26,6 @@ class RegisterController extends BaseController {
           res.json({ status: 500, msg: '数据库保存失败, 更换用户名试试!', data: null });
         } else {
           res.redirect('/admin');
-          // res.json({ status: 200, msg: '操作成功', data });
         }
       });
     });

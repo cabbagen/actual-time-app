@@ -5,6 +5,10 @@ const { registeRouter } = require('../common/applicationInit.js');
 const routerMap = {
   get: {
     ['/chatDemo']: [ authMiddleware(), chatController.renderChat.bind(chatController) ],
+    ['/getContacts']: chatController.getContacts.bind(chatController),
+  },
+  post: {
+    ['/addContacts']: chatController.addContacts.bind(chatController),    
   },
 };
 

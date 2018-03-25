@@ -1,4 +1,3 @@
-const co = require('co');
 const BaseController = require('./base.controller.js');
 
 class AdminController extends BaseController {

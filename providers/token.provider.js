@@ -5,7 +5,7 @@ const utils = require('./utils.provider');
 const secret = Buffer.from('fe1a1915a379f3be5394b64d14794932', 'hex');
 
 // token 有效时间为 30 minutes 
-const expires = moment().add('minutes', 30).valueOf();
+const expires = moment().add(30, 'minutes').valueOf();
 
 // 根据不同的子项目生成不同的 token
 const tokenMap = {
