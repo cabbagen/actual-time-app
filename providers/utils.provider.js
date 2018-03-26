@@ -2,6 +2,8 @@
  * 这里是一些公共的函数
  */
 
+const fs = require('fs');
+
 /**
  * 检验变量类型
  * @param {Any} param - 需要检验类型的变量
@@ -63,10 +65,16 @@ function checkWebsiteAddress(websiteAddress) {
   }
 }
 
+function isExistFile(filename) {
+  const fileStat = fs.statSync(filename);
+  return fileStat && fileStat.isFile();
+}
+
 
 module.exports = {
   checkType,
   getRandomRange,
   makeRandomAppkey,
   checkWebsiteAddress,
+  isExistFile,
 };

@@ -1,10 +1,15 @@
 const express = require('express');
+const path = require('path');
 const app = express();
 const { applicationInit, registeMiddleware } = require('./common/applicationInit.js');
 const middlewares = require('./middleware/index.middleware.js');
+const loggerProvider = require('./providers/log.provider.js');
 const databaseInit = require('./database/index.js');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+
+// 初始化日志服务
+loggerProvider.initLogger(path.resolve(__dirname, './log.config.json'));
 
 // 初始化数据库
 databaseInit();

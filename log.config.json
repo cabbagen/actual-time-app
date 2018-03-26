@@ -1,0 +1,25 @@
+{
+  "appenders": {
+    "out": {
+      "type": "stdout"
+    },
+    "model": {
+      "type": "dateFile",
+      "filename": "./logs/model/",
+      "pattern": "yyyy-MM-dd.log",
+      "alwaysIncludePattern": true
+    },
+    "http": {
+      "type": "dateFile",
+      "filename": "./logs/http/",
+      "pattern": "yyyy-MM-dd.log",
+      "alwaysIncludePattern": true
+    }
+  },
+  "categories": {
+    "default": {
+      "appenders": ["out", "model", "http"],
+      "level": "warn"
+    }
+  }
+}
