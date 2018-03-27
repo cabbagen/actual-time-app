@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const loggerProvider = require('../providers/log.provider.js');
 
 const Schema = mongoose.Schema;
+const modelLogger = loggerProvider.getLoggerInstance('model');
 
 const contactsSchema = new Schema({
   username: { type: String, index: true, unique: true },
@@ -10,7 +12,6 @@ const contactsSchema = new Schema({
   email: { type: String, unique: true },
   createAt: { type: Date, default: Date.now },
   updateAt: { type: Date, default: Date.now },
-  groups: [Number],
   records: [Number],
   appKey: String,
 });
@@ -31,7 +32,7 @@ contactsSchema.statics.getContacts = function(params, callback) {
     callback(null, data);
   }, (error) => {
     // ... 记录错误日志
-    console.log(error.message);
+    modelLogger.error(error.message);
     callback(databaseError, null);
   });
 }
@@ -44,7 +45,7 @@ contactsSchema.statics.addContacts = function(params, callback) {
     callback(null, data);
   }, (error) => {
     // ... 记录错误日志
-    console.log(error.message);
+    modelLogger.error(error.message);
     callback(databaseError, null);
   });
 }
@@ -58,9 +59,37 @@ contactsSchema.statics.getContactInfo = function(params, callback) {
     callback(null, data);
   }, (error) => {
     // ... 记录错误日志
-    console.log(error.message);
+    modelLogger.error(error.message);
     callback(databaseError, null);
   });
+
+  /**
+   * 更新 IM 用户信息
+   * 查询对象: params: format: { appKey: [String], username: [String] }
+   * 更新对象: updateInfo
+   */
+  contactsSchema.static.updateContaceInfo = function(params, updateInfo, callback) {
+    return this.update(params, updateInfo).exec().then((data) => {
+      callback(null, data);
+    }, (error) => {
+      modelLogger.error(error.message);
+      callback(databaseError, null);
+    });
+  }
+
+  /**
+   * 删除 IM 用户信息
+   * 删除查询对象 params: { appKey: [String], username: [String] }
+   */
+  contactsSchema.static.removeContactInfo = function(params, callback) {
+    return this.remove(params).exec().then((data) => {
+      callback(null, data);
+    }, (error) => {
+      modelLogger.error(error.message);
+      callback(databaseError, null);
+    });
+  }
+  
 }
 
 
