@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
-const loggerProvider = require('../providers/log.provider.js');
+const { modelLogger, databaseError } = require('./commen.js');
 
 const Schema = mongoose.Schema;
-const modelLogger = loggerProvider.getLoggerInstance('model');
 
 const contactsSchema = new Schema({
   username: { type: String, index: true, unique: true },
@@ -15,8 +14,6 @@ const contactsSchema = new Schema({
   records: [Number],
   appKey: String,
 });
-
-const databaseError = new Error("数据库操作失败");
 
 /**
  * 查询 IM 用户列表
@@ -68,7 +65,7 @@ contactsSchema.statics.getContactInfo = function(params, callback) {
    * 查询对象: params: format: { appKey: [String], username: [String] }
    * 更新对象: updateInfo
    */
-  contactsSchema.static.updateContaceInfo = function(params, updateInfo, callback) {
+  contactsSchema.statics.updateContaceInfo = function(params, updateInfo, callback) {
     return this.update(params, updateInfo).exec().then((data) => {
       callback(null, data);
     }, (error) => {
@@ -81,7 +78,7 @@ contactsSchema.statics.getContactInfo = function(params, callback) {
    * 删除 IM 用户信息
    * 删除查询对象 params: { appKey: [String], username: [String] }
    */
-  contactsSchema.static.removeContactInfo = function(params, callback) {
+  contactsSchema.statics.removeContactInfo = function(params, callback) {
     return this.remove(params).exec().then((data) => {
       callback(null, data);
     }, (error) => {

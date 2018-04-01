@@ -1,5 +1,6 @@
 const BaseController = require('./base.controller.js');
 const ContactsModel = require('../model/contacts.model.js');
+const MessagesModel = require('../model/messages.model.js');
 const utils = require('../providers/utils.provider.js');
 
 class ChatController extends BaseController {
@@ -85,6 +86,20 @@ class ChatController extends BaseController {
       return res.json({ state: 200, msg: null, data });
     });
   }
+
+  getMessages(req, res) {
+    const content = '这是一条消息';
+    MessagesModel.getMessages({ content }, (error, data) => {
+      if (error) {
+        console.log(error);
+      } else {
+        res.json(data);
+      }
+    });
+  }
+
+
+
 }
 
 module.exports = ChatController;
