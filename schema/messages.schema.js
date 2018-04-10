@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { modelLogger, databaseError } = require('./commen.js');
+const { modelLogger, databaseError } = require('./common.js');
 
 const Schema = mongoose.Schema;
 

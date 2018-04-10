@@ -19,12 +19,7 @@ class ChatController extends BaseController {
     res.render('chat/chat');
   }
 
-  /**
-   * 查询 IM 用户列表
-   * 
-   * Method => 'GET'
-   * 查询参数对象，format: { appKey: [String], groupId: [?Number] }
-   */
+  // 获取群组内联系人
   getContacts(req, res) {
     const { appKey, groupId } = req.query;
 
@@ -44,15 +39,7 @@ class ChatController extends BaseController {
     });
   }
 
-  /**
-   * 批量导入 IM 用户
-   * 
-   * Method: POST
-   * 参数: contacts 数据格式 format: --- Array ---
-   * 
-   * username: [String], nickname: [String], avator: [String]
-   * gender: [Number], email: [String], appKey: [String]
-   */
+  // 向系统导入联系人信息
   addContacts(req, res) {
     const parmas = req.body.contacts;
     if (typeof parmas === 'undefined' || utils.checkType(parmas) !== 'Array') {
@@ -67,12 +54,7 @@ class ChatController extends BaseController {
     });
   }
 
-  /**
-   * 获取指定的 IM 用户信息
-   * 
-   * Method: 'GET'
-   * 查询参数对象，format: { appKey: [String], username: [String] }
-   */
+  // 获取联系人信息
   getContactInfo(req, res) {
     const { appKey, username } = req.query;
     if (typeof appKey === 'undefined' || typeof username === 'undefined') {
@@ -97,9 +79,6 @@ class ChatController extends BaseController {
       }
     });
   }
-
-
-
 }
 
 module.exports = ChatController;

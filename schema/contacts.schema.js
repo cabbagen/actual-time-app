@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { modelLogger, databaseError } = require('./commen.js');
+const { modelLogger, databaseError } = require('./common.js');
 
 const Schema = mongoose.Schema;
 
@@ -11,7 +11,7 @@ const contactsSchema = new Schema({
   email: { type: String, unique: true },
   createAt: { type: Date, default: Date.now },
   updateAt: { type: Date, default: Date.now },
-  records: [Number],
+  groups: [Object],
   appKey: String,
 });
 
@@ -86,7 +86,6 @@ contactsSchema.statics.getContactInfo = function(params, callback) {
       callback(databaseError, null);
     });
   }
-  
 }
 
 
