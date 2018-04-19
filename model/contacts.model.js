@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const contactsSchema = require('../schema/contacts.schema');
 
-const contactsModel = mongoose.model('contacts', contactsSchema);
+const ContactsModel = mongoose.model('contacts', contactsSchema);
 
-module.exports = contactsModel;
+module.exports = ContactsModel;

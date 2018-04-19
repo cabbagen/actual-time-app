@@ -5,6 +5,7 @@ const utilsProvider = require('../providers/utils.provider.js');
 const Schema = mongoose.Schema;
 
 const usersSchema = new Schema({
+  _id: Schema.Types.ObjectId,
   username: { type: String, index: true, unique: true },
   password: String,
   provider: [Number],

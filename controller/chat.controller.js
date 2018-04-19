@@ -69,16 +69,13 @@ class ChatController extends BaseController {
     });
   }
 
+  // 获取聊天信息
   getMessages(req, res) {
-    const content = '这是一条消息';
-    MessagesModel.getMessages({ content }, (error, data) => {
-      if (error) {
-        console.log(error);
-      } else {
-        res.json(data);
-      }
-    });
+    res.end('获取聊天信息');
   }
+
+  // 获取最近联系人
+
 }
 
 module.exports = ChatController;

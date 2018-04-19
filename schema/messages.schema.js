@@ -4,6 +4,7 @@ const { modelLogger, databaseError } = require('./common.js');
 const Schema = mongoose.Schema;
 
 const messagesSchema = new Schema({
+  _id: Schema.Types.ObjectId,
   groupId: Object,
   from: Object,
   to: Object,
