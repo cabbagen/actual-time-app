@@ -6,15 +6,24 @@ const Schema = mongoose.Schema;
 const groupsSchema = new Schema({
   _id: Schema.Types.ObjectId,
   groupName: { type: String, queue: true },
-  creator: Schema.Types.ObjectId,
-  members: [{ type: Schema.Types.ObjectId }],
+  creator: { type: Schema.Types.ObjectId, ref: 'contacts' },
+  members: [{ type: Schema.Types.ObjectId, ref: 'contacts' }],
   createAt: { type: Date, default: Date.now },
   updateAt: { type: Date, default: Date.now },
   appKey: String,
 });
 
-groupsSchema.statics.isGroupOwner = function() {
-
+/**
+ * 判断是否为群主
+ * @params 查询参数 { username: [String], appKey: [String] }
+ * @return Promise or null
+ */
+groupsSchema.statics.isGroupOwner = function(params) {
+  const { usernmae, appKey } = params;
+  if (typeof username === 'undefined' || typeof appKey === 'undefined') {
+    return null;
+  }
+  return this.findOne({ username, appKey }).exec();
 }
 
 /**
@@ -31,6 +40,7 @@ groupsSchema.statics.createGroups = function(params, callback) {
 
 /**
  * 删除一个小组
+ * @params { appKey: [String], _id: [String] }
  */
 groupsSchema.statics.deleteGroups = function(params, callback) {
   if (!params.appKey || !params._id) {
@@ -38,8 +48,7 @@ groupsSchema.statics.deleteGroups = function(params, callback) {
     return;
   }
 
-  const { appKey, _id } = params;
-  return this.deleteOne({ appKey, _id }).exex()
+  return this.deleteOne({ appKey: params.appKey, _id: params._id }).exex()
     .then((data) => {
       callback(null, data);
     }, (error) => {
@@ -50,9 +59,20 @@ groupsSchema.statics.deleteGroups = function(params, callback) {
 
 /**
  * 获取群组信息
+ * @params { appKey: [String], _id: [String] }
  */
 groupsSchema.statics.getGroupInfos = function(params, callback) {
-
+  if (!params.appKey || !params._id) {
+    callback(paramsError, null);
+    return;
+  }
+  return this.findOne({ appKey: params.appKey, _id: params._id }).exex()
+    .then((data) => {
+      callback(null, data);
+    }, (error) => {
+      modelLogger.error(error.message);
+      callback(databaseError, null);
+    });
 }
 
 /**
@@ -66,7 +86,18 @@ groupsSchema.statics.leaveGroups = function(params, callback) {
  * 修改群组名称
  */
 groupsSchema.statics.modifyGroupsName = function(params, callback) {
-
+  const { appKey, groupName, _id } = params;
+  if (typeof appKey === 'undefined' || typeof _id === 'undefined' || typeof groupName === 'undefined') {
+    callback(paramsError, null);
+    return;
+  }
+  return this.updateOne({ appKey, _id }, { groupName }).exec()
+    .then((data) => {
+      callback(null, data);
+    }, (error) => {
+      modelLogger.error(error.message);
+      callback(databaseError, null);
+    });
 }
 
 /**
@@ -79,7 +110,7 @@ groupsSchema.statics.addRoomerToGroup = function(params, callback) {
 /**
  * 清除 IM 用户
  */
-groupsSchema.statics.removeRoomerToGroup = function(params, callback) {
+groupsSchema.statics.removeRoomerFromGroup = function(params, callback) {
 
 }
 
