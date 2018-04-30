@@ -1,5 +1,5 @@
 const adminController = require('../controller/admin.controller.js').init();
-const { registeRouter } = require('../common/applicationInit.js');
+const { registeRouter } = require('../kernel/core.js');
 
 const routerMap = {
   get: {

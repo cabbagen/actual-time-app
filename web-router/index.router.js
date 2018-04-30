@@ -1,5 +1,5 @@
 const indexController = require('../controller/index.controller.js').init();
-const { registeRouter } = require('../common/applicationInit.js');
+const { registeRouter } = require('../kernel/core.js');
 
 const routerMap = {
   get: {

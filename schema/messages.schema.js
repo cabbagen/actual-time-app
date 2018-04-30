@@ -24,4 +24,15 @@ messagesSchema.statics.getMessages = function(params, callback) {
   });
 }
 
+// 获取最近联系人
+messagesSchema.statics.getRecentContacts = function(params, callback) {
+  return this.find({ $or: [{ from: mongoose.Types.ObjectId(params._id) }, { to: mongoose.Types.ObjectId(params._id) }] })
+    .limit(20).exec().then((data) => {
+      callback(null, data);
+    }, (error) => {
+      modelLogger.error(error.message);
+      callback(databaseError, null);
+    });
+}
+
 module.exports = messagesSchema;

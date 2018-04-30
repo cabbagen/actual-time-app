@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const { applicationInit, registeMiddleware } = require('./common/applicationInit.js');
+const { applicationInit, registeMiddleware } = require('./kernel/core.js');
 const middlewares = require('./middleware/index.middleware.js');
 const loggerProvider = require('./providers/log.provider.js');
 const databaseInit = require('./database/index.js');

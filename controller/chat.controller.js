@@ -1,6 +1,7 @@
 const BaseController = require('./base.controller.js');
 const ContactsModel = require('../model/contacts.model.js');
 const MessagesModel = require('../model/messages.model.js');
+const { callbackDecorator } = require('../kernel/core.js');
 const utils = require('../providers/utils.provider.js');
 
 class ChatController extends BaseController {
@@ -31,12 +32,13 @@ class ChatController extends BaseController {
       return res.json(this.paramsError);
     }
 
-    ContactsModel.getContacts({ appKey, groupId }, (error, data) => {
-      if (error) {
+    callbackDecorator(ContactsModel.getContacts.bind(ContactsModel), { appKey, groupId })
+      .then(function(data) {
+        return res.json({ state: 200, msg: null, data });
+      })
+      .catch(function(error) {
         return res.json({ state: 203, msg: error.toString(), data: null });
-      }
-      return res.json({ state: 200, msg: null, data });
-    });
+      });
   }
 
   // 向系统导入联系人信息
@@ -46,36 +48,39 @@ class ChatController extends BaseController {
       return res.json(this.paramsError);
     }
 
-    ContactsModel.addContacts(parmas, (error, data) => {
-      if (error) {
+    callbackDecorator(ContactsModel.addContacts.bind(ContactsModel), parmas)
+      .then(function(data) {
+        return res.json({ state: 200, msg: null, data });
+      })
+      .catch(function(error) {
         return res.json({ state: 203, msg: error.toString(), data: null });
-      }
-      return res.json({ state: 200, msg: null, data });
-    });
+      });
   }
 
   // 获取联系人信息
   getContactInfo(req, res) {
     const { appKey, username } = req.query;
+
     if (typeof appKey === 'undefined' || typeof username === 'undefined') {
       return res.json(this.paramsError);
     }
 
-    ContactsModel.getContactInfo({ appKey, username }, (error, data) => {
-      if (error) {
+    callbackDecorator(ContactsModel.getContactInfo.bind(ContactsModel), { appKey, username })
+      .then(function(data) {
+        return callbackDecorator(MessagesModel.getRecentContacts.bind(MessagesModel), { _id: data.id })
+      })
+      .then(function(data) {
+        return res.json(data);
+      })
+      .catch(function(error) {
         return res.json({ state: 203, msg: error.toString(), data: null });
-      }
-      return res.json({ state: 200, msg: null, data });
-    });
+      });
   }
 
   // 获取聊天信息
   getMessages(req, res) {
     res.end('获取聊天信息');
   }
-
-  // 获取最近联系人
-
 }
 
 module.exports = ChatController;
