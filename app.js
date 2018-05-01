@@ -8,6 +8,10 @@ const databaseInit = require('./database/index.js');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
+// chat socket service
+const { SocketChatService } = require('./providers/chat.provider');
+SocketChatService.init(io);
+
 // 初始化日志服务
 loggerProvider.initLogger(path.resolve(__dirname, './log.config.json'));
 
@@ -31,14 +35,6 @@ try {
   console.log('请检查 Controller 文件');
   console.log(e);
 }
-
-// socket.io server ...
-io.on('connection', function(socket) {
-  console.log('a user connected');
-  socket.on('disconnect', function() {
-    console.log('user disconnected');
-  });
-});
 
 http.listen(4000, function() {
   console.log('hostname: localhost, port: 4000,  listen...');

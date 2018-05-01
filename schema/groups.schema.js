@@ -5,12 +5,14 @@ const Schema = mongoose.Schema;
 
 const groupsSchema = new Schema({
   _id: Schema.Types.ObjectId,
-  groupName: { type: String, queue: true },
+  group_name: { type: String, queue: true },
+  group_introduce: { type: String, default: '暂无群介绍' },
+  group_avator: String,
   creator: { type: Schema.Types.ObjectId, ref: 'contacts' },
   members: [{ type: Schema.Types.ObjectId, ref: 'contacts' }],
-  createAt: { type: Date, default: Date.now },
-  updateAt: { type: Date, default: Date.now },
-  appKey: String,
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+  app_key: String,
 });
 
 /**

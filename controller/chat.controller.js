@@ -65,12 +65,9 @@ class ChatController extends BaseController {
       return res.json(this.paramsError);
     }
 
-    callbackDecorator(ContactsModel.getContactInfo.bind(ContactsModel), { appKey, username })
+    callbackDecorator(ContactsModel.getContactInfo.bind(ContactsModel), { username, app_key: appKey })
       .then(function(data) {
-        return callbackDecorator(MessagesModel.getRecentContacts.bind(MessagesModel), { _id: data.id })
-      })
-      .then(function(data) {
-        return res.json(data);
+        return res.json({ state: 200, msg: null, data });
       })
       .catch(function(error) {
         return res.json({ state: 203, msg: error.toString(), data: null });

@@ -5,13 +5,15 @@ const Schema = mongoose.Schema;
 
 const messagesSchema = new Schema({
   _id: Schema.Types.ObjectId,
-  groupId: Object,
-  from: Object,
-  to: Object,
-  state: Number,
-  createAt: { type: Date, default: Date.now },
-  updateAt: { type: Date, default: Date.now },
-  appKey: String,
+  msg_type: Number,
+  msg_state: Number,
+  msg_from_group: Schema.Types.ObjectId,
+  msg_content: String,
+  msg_from_contact: Schema.Types.ObjectId,
+  msg_to_contact: Schema.Types.ObjectId,
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+  app_key: String,
 });
 
 // 获取单人间的聊天记录

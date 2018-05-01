@@ -8,13 +8,14 @@ const contactsSchema = new Schema({
   username: { type: String, index: true, unique: true },
   nickname: String,
   avator: String,
+  extra: { type: String, default: '这个人很懒' },
   gender: Number,
   friends: [{ type: Schema.Types.ObjectId, ref: 'contacts' }],
   email: { type: String, unique: true },
-  createAt: { type: Date, default: Date.now },
-  updateAt: { type: Date, default: Date.now },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
   groups: [{ type: Schema.Types.ObjectId, ref: 'groups' }],
-  appKey: String,
+  app_key: String,
 });
 
 /**
@@ -31,7 +32,7 @@ contactsSchema.statics.getContacts = function(params, callback) {
   const query = { appKey: params.appKey };
 
   if (typeof params.groupId !== 'undefined' && params.groupId) {
-    query.groups = { $all: [ params.groupId ] };
+    query.groups = { $all: [ mongoose.Types.ObjectId(params.groupId) ] };
   }
 
   return this.find(query).exec().then((data) => {
@@ -58,10 +59,10 @@ contactsSchema.statics.addContacts = function(params, callback) {
 /**
  * 服务端、客户端使用
  * 获取指定的 IM 用户信息
- * 查询对象: params: format: { appKey: [String], username: [String] }
+ * 查询对象: params: format: { app_key: [String], username: [String] }
  */
 contactsSchema.statics.getContactInfo = function(params, callback) {
-  if (!params.appKey || !params.username) {
+  if (!params.app_key || !params.username) {
     callback(paramsError, null);
     return;
   }
