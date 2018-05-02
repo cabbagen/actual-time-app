@@ -13,7 +13,7 @@ class IndexController extends BaseController {
   constructor(prop) {
     super(prop);
     this.projects = [
-      { name: '实时通讯', link: '/chat' },
+      { name: '实时通讯', link: 'http://localhost:4200/chat' },
       { name: '实时视频', link: '/video' },
       { name: '在线文档', link: '/document' },
     ];

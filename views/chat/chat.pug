@@ -8,5 +8,11 @@ block content
 
 block scripts
   script(type="text/javascript").
-    var socket = io();
-    console.log(socket);
+    var socket = io('/chat');
+    socket.on('connect', function() {
+      console.log('success');
+      socket.emit('chat', "hello server");
+    });
+    socket.on('demo', function(data) {
+      console.log(data);
+    })
