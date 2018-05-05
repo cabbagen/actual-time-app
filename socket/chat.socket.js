@@ -1,4 +1,9 @@
-
+/**
+ * 这里处理 chat socket 的部分服务
+ *
+ * namespace => `chat` 
+ * 
+ */
 class SocketChatService {
 
   static init(io) {

@@ -37,8 +37,7 @@ class IndexController extends BaseController {
     const isPassCheckValidateImageText = this.checkValidateImageText(sessionCaptcha, validateImageText);
 
     if (!isPassCheckValidateImageText) {
-      res.json({ status: '500', data: null, msg: '验证码错误', type: 'captcha-error' });
-      return;
+      return res.json({ status: '500', data: null, msg: '验证码错误', type: 'captcha-error' });
     }
 
     const passwordHash = cryptoProvider.getSaledHashSync(password);
