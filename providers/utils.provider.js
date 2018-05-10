@@ -3,6 +3,7 @@
  */
 
 const fs = require('fs');
+const crypto = require('crypto');
 
 /**
  * 检验变量类型
@@ -70,6 +71,10 @@ function isExistFile(filename) {
   return fileStat && fileStat.isFile();
 }
 
+function makeMD5Crypto(data) {
+  return crypto.createHash('md5').update(data).digest("hex");
+}
+
 
 module.exports = {
   checkType,
@@ -77,4 +82,5 @@ module.exports = {
   makeRandomAppkey,
   checkWebsiteAddress,
   isExistFile,
+  makeMD5Crypto,
 };

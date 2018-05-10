@@ -4,7 +4,6 @@ const { modelLogger, databaseError } = require('./common.js');
 const Schema = mongoose.Schema;
 
 const messagesSchema = new Schema({
-  _id: Schema.Types.ObjectId,
   msg_type: Number,
   msg_state: Number,
   msg_from_group: Schema.Types.ObjectId,
@@ -26,7 +25,7 @@ messagesSchema.statics.getMessages = function(params, callback) {
   });
 }
 
-// 获取最近联系人
+// 获取最近联系人 - 暂时废弃
 messagesSchema.statics.getRecentContacts = function(params, callback) {
   return this.find({ $or: [{ from: mongoose.Types.ObjectId(params._id) }, { to: mongoose.Types.ObjectId(params._id) }] })
     .limit(20).exec().then((data) => {
@@ -35,6 +34,16 @@ messagesSchema.statics.getRecentContacts = function(params, callback) {
       modelLogger.error(error.message);
       callback(databaseError, null);
     });
+}
+
+// 添加消息记录
+messagesSchema.statics.addMessage = function(params, callback) {
+  return this.create(params).then((data) => {
+    callback(null, data);
+  }, (error) => {
+    modelLogger.error(error.message);
+    callback(databaseError, null);
+  });
 }
 
 module.exports = messagesSchema;

@@ -4,7 +4,6 @@ const { modelLogger, databaseError, paramsError } = require('./common.js');
 const Schema = mongoose.Schema;
 
 const groupsSchema = new Schema({
-  _id: Schema.Types.ObjectId,
   group_name: { type: String, queue: true },
   group_introduce: { type: String, default: '暂无群介绍' },
   group_avator: String,

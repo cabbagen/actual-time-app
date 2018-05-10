@@ -4,7 +4,6 @@ const { modelLogger, databaseError, paramsError } = require('./common.js');
 const Schema = mongoose.Schema;
 
 const contactsSchema = new Schema({
-  _id: Schema.Types.ObjectId,
   username: { type: String, index: true, unique: true },
   nickname: String,
   avator: String,
