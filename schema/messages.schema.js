@@ -8,16 +8,16 @@ const messagesSchema = new Schema({
   msg_state: Number,
   msg_from_group: Schema.Types.ObjectId,
   msg_content: String,
-  msg_from_contact: Schema.Types.ObjectId,
-  msg_to_contact: Schema.Types.ObjectId,
+  msg_from_contact: { type: Schema.Types.ObjectId, ref: 'contacts' },
+  msg_to_contact: { type: Schema.Types.ObjectId, ref: 'contacts' },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
-  app_key: String,
+  appkey: String,
 });
 
-// 获取单人间的聊天记录
-messagesSchema.statics.getMessages = function(params, callback) {
-  return this.find(params).limit(20).exec().then((data) => {
+// 添加消息记录 - 字段和 schema 相同
+messagesSchema.statics.addMessage = function(params, callback) {
+  return this.create(params).then((data) => {
     callback(null, data);
   }, (error) => {
     modelLogger.error(error.message);
@@ -25,20 +25,8 @@ messagesSchema.statics.getMessages = function(params, callback) {
   });
 }
 
-// 获取最近联系人 - 暂时废弃
-messagesSchema.statics.getRecentContacts = function(params, callback) {
-  return this.find({ $or: [{ from: mongoose.Types.ObjectId(params._id) }, { to: mongoose.Types.ObjectId(params._id) }] })
-    .limit(20).exec().then((data) => {
-      callback(null, data);
-    }, (error) => {
-      modelLogger.error(error.message);
-      callback(databaseError, null);
-    });
-}
-
-// 添加消息记录
-messagesSchema.statics.addMessage = function(params, callback) {
-  return this.create(params).then((data) => {
+messagesSchema.statics.getOneMessage = function(params, callback) {
+  return this.findOne(params).populate('msg_from_contact').populate('msg_to_contact').exec().then((data) => {
     callback(null, data);
   }, (error) => {
     modelLogger.error(error.message);

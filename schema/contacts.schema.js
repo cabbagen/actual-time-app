@@ -14,15 +14,10 @@ const contactsSchema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   groups: [{ type: Schema.Types.ObjectId, ref: 'groups' }],
-  app_key: String,
+  appkey: String,
 });
 
-/**
- * 服务端使用
- * 查询账户下所有导入的 IM 用户， 群组 Id 可用于查找指定组内的 IM 成员
- * 查询对象: params: format: { appKey: [String], groupId: [?Number] }
- */
-contactsSchema.statics.getContacts = function(params, callback) {
+contactsSchema.statics.getContactsFromGroupOrAll = function(params, callback) {
   if (!params.appKey) {
     callback(paramsError, null);
     return;
@@ -42,10 +37,7 @@ contactsSchema.statics.getContacts = function(params, callback) {
   });
 }
 
-/**
- * 服务端使用
- * 批量导入 IM 用户
- */
+// 创建联系人 - 字段 和 schema 相同
 contactsSchema.statics.addContacts = function(params, callback) {
   return this.create(params).then((data) => {
     callback(null, data);
@@ -55,17 +47,15 @@ contactsSchema.statics.addContacts = function(params, callback) {
   });
 }
 
-/**
- * 服务端、客户端使用
- * 获取指定的 IM 用户信息
- * 查询对象: params: format: { app_key: [String], username: [String] }
- */
 contactsSchema.statics.getContactInfo = function(params, callback) {
-  if (!params.app_key || !params.username) {
+  if (!params.appkey || !params.id) {
     callback(paramsError, null);
     return;
   }
-  return this.findOne(params).populate('friends').populate('groups').exec().then((data) => {
+  
+  const condition = { appkey: params.appkey, _id: mongoose.Types.ObjectId(params.id) };
+
+  return this.findOne(condition).populate('friends').populate('groups').exec().then((data) => {
     callback(null, data);
   }, (error) => {
     modelLogger.error(error.message);
@@ -73,14 +63,15 @@ contactsSchema.statics.getContactInfo = function(params, callback) {
   });
 }
 
-/**
- * 服务端使用
- * 更新 IM 用户信息
- * 查询对象: params: format: { appKey: [String], username: [String] }
- * 更新对象: updateInfo
- */
 contactsSchema.statics.updateContaceInfo = function(params, updateInfo, callback) {
-  return this.update(params, updateInfo).exec().then((data) => {
+  if (!params.appkey || !params.id) {
+    callback(paramsError, null);
+    return;
+  }
+
+  const condition = { appkey: params.appkey, _id: mongoose.Types.ObjectId(params.id) };
+  
+  return this.update(condition, updateInfo).exec().then((data) => {
     callback(null, data);
   }, (error) => {
     modelLogger.error(error.message);
@@ -88,13 +79,15 @@ contactsSchema.statics.updateContaceInfo = function(params, updateInfo, callback
   });
 }
 
-/**
- * 服务端使用
- * 删除 IM 用户信息
- * 删除查询对象 params: { appKey: [String], username: [String] }
- */
 contactsSchema.statics.removeContactInfo = function(params, callback) {
-  return this.remove(params).exec().then((data) => {
+  if (!params.appkey || !params.id) {
+    callback(paramsError, null);
+    return;
+  }
+
+  const condition = { appkey: params.appkey, _id: mongoose.Types.ObjectId(params.id) };
+
+  return this.remove(condition).exec().then((data) => {
     callback(null, data);
   }, (error) => {
     modelLogger.error(error.message);

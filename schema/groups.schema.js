@@ -11,7 +11,7 @@ const groupsSchema = new Schema({
   members: [{ type: Schema.Types.ObjectId, ref: 'contacts' }],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
-  app_key: String,
+  appkey: String,
 });
 
 /**

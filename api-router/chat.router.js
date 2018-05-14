@@ -5,12 +5,12 @@ const { registeRouter } = require('../kernel/core.js');
 const routerMap = {
   get: {
     ['/chatDemo']: [ authMiddleware(), chatController.renderChat.bind(chatController) ],
-    ['/getContacts']: chatController.getContacts.bind(chatController),
-    ['/getMessages']: chatController.getMessages.bind(chatController),
+    // ['/getContacts']: chatController.getContacts.bind(chatController),
+    // ['/getMessages']: chatController.getMessages.bind(chatController),
     ['/getContactInfo']: chatController.getContactInfo.bind(chatController),
   },
   post: {
-    ['/addContacts']: chatController.addContacts.bind(chatController),    
+    // ['/addContacts']: chatController.addContacts.bind(chatController),    
   },
 };
 

@@ -12,7 +12,7 @@ class ChatController extends BaseController {
 
   constructor(props) {
     super(props);
-    this.appKeyError = { state: 201, msg: '请传入 appKey', data: null };
+    this.appkeyError = { state: 201, msg: '请传入 appKey', data: null };
     this.paramsError = { state: 202, msg: '传入的参数有误', data: null };
   }
 
@@ -21,51 +21,51 @@ class ChatController extends BaseController {
   }
 
   // 获取群组内联系人
-  getContacts(req, res) {
-    const { appKey, groupId } = req.query;
+  // getContacts(req, res) {
+  //   const { appKey, groupId } = req.query;
 
-    if (typeof appKey === 'undefined') {
-      return res.json(this.appKeyError);
-    }
+  //   if (typeof appKey === 'undefined') {
+  //     return res.json(this.appKeyError);
+  //   }
 
-    if (typeof groupId !== 'undefined' && (!parseInt(groupId, 10) || parseInt(groupId, 10) <= 0)) {
-      return res.json(this.paramsError);
-    }
+  //   if (typeof groupId !== 'undefined' && (!parseInt(groupId, 10) || parseInt(groupId, 10) <= 0)) {
+  //     return res.json(this.paramsError);
+  //   }
 
-    callbackDecorator(ContactsModel.getContacts.bind(ContactsModel), { appKey, groupId })
-      .then(function(data) {
-        return res.json({ state: 200, msg: null, data });
-      })
-      .catch(function(error) {
-        return res.json({ state: 203, msg: error.toString(), data: null });
-      });
-  }
+  //   callbackDecorator(ContactsModel.getContacts.bind(ContactsModel), { appKey, groupId })
+  //     .then(function(data) {
+  //       return res.json({ state: 200, msg: null, data });
+  //     })
+  //     .catch(function(error) {
+  //       return res.json({ state: 203, msg: error.toString(), data: null });
+  //     });
+  // }
 
   // 向系统导入联系人信息
-  addContacts(req, res) {
-    const parmas = req.body.contacts;
-    if (typeof parmas === 'undefined' || utils.checkType(parmas) !== 'Array') {
-      return res.json(this.paramsError);
-    }
+  // addContacts(req, res) {
+  //   const parmas = req.body.contacts;
+  //   if (typeof parmas === 'undefined' || utils.checkType(parmas) !== 'Array') {
+  //     return res.json(this.paramsError);
+  //   }
 
-    callbackDecorator(ContactsModel.addContacts.bind(ContactsModel), parmas)
-      .then(function(data) {
-        return res.json({ state: 200, msg: null, data });
-      })
-      .catch(function(error) {
-        return res.json({ state: 203, msg: error.toString(), data: null });
-      });
-  }
+  //   callbackDecorator(ContactsModel.addContacts.bind(ContactsModel), parmas)
+  //     .then(function(data) {
+  //       return res.json({ state: 200, msg: null, data });
+  //     })
+  //     .catch(function(error) {
+  //       return res.json({ state: 203, msg: error.toString(), data: null });
+  //     });
+  // }
 
   // 获取联系人信息
   getContactInfo(req, res) {
-    const { appKey, username } = req.query;
+    const { appkey, id } = req.query;
 
-    if (typeof appKey === 'undefined' || typeof username === 'undefined') {
+    if (typeof appkey === 'undefined' || typeof id === 'undefined') {
       return res.json(this.paramsError);
     }
 
-    callbackDecorator(ContactsModel.getContactInfo.bind(ContactsModel), { username, app_key: appKey })
+    callbackDecorator(ContactsModel.getContactInfo.bind(ContactsModel), { id, appkey })
       .then(function(data) {
         return res.json({ state: 200, msg: null, data });
       })
@@ -75,9 +75,9 @@ class ChatController extends BaseController {
   }
 
   // 获取聊天信息
-  getMessages(req, res) {
-    res.end('获取聊天信息');
-  }
+  // getMessages(req, res) {
+  //   res.end('获取聊天信息');
+  // }
 }
 
 module.exports = ChatController;

@@ -13,6 +13,8 @@
 
 const mongoose = require('mongoose');
 const MessageModel = require('../model/messages.model');
+const ContactModel = require('../model/contacts.model');
+const { callbackDecorator } = require('../kernel/core');
 const { makeMD5Crypto } = require('../providers/utils.provider');
 
 class SocketChatService {
@@ -32,21 +34,21 @@ class SocketChatService {
   registerChatService() {
     this.chat = this.io.of(SocketChatService.socketPath).on('connection', (socket) => {
       // 登录
-      socket.on('chat_init', (appKey, data) => {
-        this.onLine(data.from);
+      socket.on('chat_init', (appkey, data) => {
+        this.loginIMLine(data.from);
       });
 
       // 私聊
-      socket.on('chat_private', (appKey, data) => {
-        this.handleChatFromPrivate(appKey, data, socket);
+      socket.on('chat_private', (appkey, data) => {
+        this.handleChatFromPrivate(appkey, data, socket);
       });
 
       // 群聊
     });
   }
 
-  onLine(id) {
-    const isOnLined = this.isOnLined();
+  loginIMLine(id) {
+    const isOnLined = this.isOnLined(id);
     if (!isOnLined) this.onlineMembers.push(id);
   }
 
@@ -54,7 +56,7 @@ class SocketChatService {
     return this.onlineMembers.indexOf(id) > -1;
   }
 
-  handleChatFromPrivate(appKey, data, chatSocket) {
+  handleChatFromPrivate(appkey, data, chatSocket) {
     const isOnLined = this.isOnLined(data.to);
     const params = {
       msg_type: data.type,
@@ -63,19 +65,46 @@ class SocketChatService {
       msg_content: data.content,
       msg_from_contact: mongoose.Types.ObjectId(data.from),
       msg_to_contact: mongoose.Types.ObjectId(data.to),
-      app_key: appKey,
+      appkey: appkey,
     };
 
-    MessageModel.addMessage(params, function(error) {
-      if (!error) console.log(error);
-    });
+    callbackDecorator(MessageModel.addMessage.bind(MessageModel), params)
+      .then((result) => {
+        const condition = { _id: mongoose.Types.ObjectId(result._id) };
+        return callbackDecorator(MessageModel.getOneMessage.bind(MessageModel), condition);
+      })
+      .then((result) => {
+        // 消息广播
+        const hasPrivateChannelRoom = this.hasPrivateChannelRoom(data.from, data.to);
+        
+        const room = makeMD5Crypto(data.from + data.to);
 
-    // 消息广播
-    const hasPrivateChannelRoom = this.hasPrivateChannelRoom(data.from, data.to);
-    const room = makeMD5Crypto(data.from + data.to);
+        if (!hasPrivateChannelRoom) this.createChannelRoom('private', room);
 
-    if (!this.hasChannelRoom) this.createChannelRoom('private', room);
-    chatSocket.join(room).emit('chat_private', data);
+        const currenRoom = this.getCurrentPrivateChannelRoom(data.from, data.to);
+
+        const beSentMsg = {
+          type: data.type,
+          content: data.content,
+          from: result.msg_from_contact,
+          to: result.msg_to_contact,
+        };
+
+        chatSocket.join(currenRoom.room, () => {
+          chatSocket.emit('chat_private', beSentMsg).to(currenRoom.room).volatile.emit('chat_private', beSentMsg);
+        });
+      });
+  }
+
+  hasPrivateChannelRoom(from, to) {
+    const room = makeMD5Crypto(from + to);
+    const reverseRoom = makeMD5Crypto(to + from);
+
+    return this.hasChannelRoom(room) || this.hasChannelRoom(reverseRoom);
+  }
+
+  hasChannelRoom(room) {
+    return this.channelRooms.find(roomInfo => roomInfo.room === room);
   }
 
   /**
@@ -87,15 +116,13 @@ class SocketChatService {
     this.channelRooms.push({ type, room });
   }
 
-  hasPrivateChannelRoom(from, to) {
-    const room = makeMD5Crypto(data.from + data.to);
-    const reverseRoom = makeMD5Crypto(data.to + data.from);
+  getCurrentPrivateChannelRoom(from, to) {
+    const room = makeMD5Crypto(from + to);
+    const reverseRoom = makeMD5Crypto(to + from);
 
-    return this.hasChannelRoom(room) || this.hasChannelRoom(reverseRoom);
-  }
-
-  hasChannelRoom(room) {
-    return this.channelRooms.find(roomInfo => roomInfo.room === room);
+    return this.channelRooms.find((roomInfo) => {
+      return roomInfo.type === 'private' && (roomInfo.room === room || roomInfo.room === reverseRoom);
+    });
   }
 
 }
