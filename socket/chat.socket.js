@@ -76,7 +76,7 @@ class SocketChatService {
       .then((result) => {
         // 消息广播
         const hasPrivateChannelRoom = this.hasPrivateChannelRoom(data.from, data.to);
-        
+
         const room = makeMD5Crypto(data.from + data.to);
 
         if (!hasPrivateChannelRoom) this.createChannelRoom('private', room);
@@ -91,7 +91,7 @@ class SocketChatService {
         };
 
         chatSocket.join(currenRoom.room, () => {
-          chatSocket.emit('chat_private', beSentMsg).to(currenRoom.room).volatile.emit('chat_private', beSentMsg);
+          chatSocket.emit('chat_private', beSentMsg).to(currenRoom.room).broadcast.emit('chat_private', beSentMsg);
         });
       });
   }
