@@ -15,6 +15,7 @@ const contactsSchema = new Schema({
   updated_at: { type: Date, default: Date.now },
   groups: [{ type: Schema.Types.ObjectId, ref: 'groups' }],
   appkey: String,
+  status: Number,
 });
 
 contactsSchema.statics.getContactsFromGroupOrAll = function(params, callback) {
