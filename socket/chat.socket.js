@@ -11,11 +11,9 @@
  *   to:       消息接收人;  接收人的 objectId
  */
 
-const mongoose = require('mongoose');
 const MessageModel = require('../model/messages.model');
 const ContactModel = require('../model/contacts.model');
 const { callbackDecorator } = require('../kernel/core');
-const { makeMD5Crypto } = require('../providers/utils.provider');
 
 let chatApplication = null;  // this is a Singleton Pattern
 
@@ -35,20 +33,46 @@ class SocketChatService {
     this.chat = this.io.of(SocketChatService.socketPath).on('connection', (socket) => {
       // 连接 websocket IM 用户上线
       socket.on('on_line', (appkey, id) => {
-        this.loginIMService(appkey, id);
+        console.log('IM 用户上线');
+        this.loginIMService(appkey, id, socket.client.id);
+      });
+
+      // 断开连接
+      socket.on('disconnecting', (reason) => {
+        console.log('IM 用户下线');
+        this.logoutIMService(socket.client.id);
       });
 
       // 推送未读消息 ...
 
-      // 转发消息
+      // 转发消息 ...
+
     });
   }
 
-  loginIMService(appkey, id) {
+  loginIMService(appkey, id, socketId) {
     const params = { appkey, id };
-    return callbackDecorator(ContactModel.updateContaceInfo.bind(ContactModel), params, { status: 1 });
+    const updatedParams = { state: 1, socket_id: socketId };
+
+    return callbackDecorator(ContactModel.updateContaceInfo.bind(ContactModel), params, updatedParams);
   }
 
+  logoutIMService(socketId) {
+    const updatedParams = { state: 0 };
+    return callbackDecorator(ContactModel.changeContactStatusBySocketId.bind(ContactModel), socketId, updatedParams);
+  }
+
+  getIMServiceUnreadMessage(target) {
+    const params = {
+      message_target: target,
+      message_state: 0,
+    };
+    callbackDecorator(MessageModel.getMessages.bind(MessageModel), params).then((result) => {
+      return result;
+    }, (error) => {
+      console.log(error.toString());
+    });
+  }
 }
 
 SocketChatService.socketPath = '/chat';

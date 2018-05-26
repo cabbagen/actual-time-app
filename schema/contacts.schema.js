@@ -13,9 +13,10 @@ const contactsSchema = new Schema({
   email: { type: String, unique: true },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
+  socket_id: String,
   groups: [{ type: Schema.Types.ObjectId, ref: 'groups' }],
   appkey: String,
-  status: Number,
+  state: Number,
 });
 
 contactsSchema.statics.getContactsFromGroupOrAll = function(params, callback) {
@@ -96,5 +97,18 @@ contactsSchema.statics.removeContactInfo = function(params, callback) {
   });
 }
 
+contactsSchema.statics.changeContactStatusBySocketId = function(socketId, updateInfo, callback) {
+  if (typeof socketId === 'undefined') {
+    callback(paramsError, null);
+    return;
+  }
+
+  return this.update({ socket_id: socketId }, updateInfo).exec().then((data) => {
+    callback(null, data);
+  }, (error) => {
+    modelLogger.error(error.message);
+    callback(databaseError, null);
+  });
+}
 
 module.exports = contactsSchema;

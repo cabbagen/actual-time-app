@@ -61,7 +61,7 @@ function callbackDecorator(callback, ...callbackArguments) {
   const promise = new Promise((resolve, reject) => {
     callback(...callbackArguments, (error, data) => {
       if (error) reject(error);
-      resolve(data);
+      else resolve(data);
     });
   });
 

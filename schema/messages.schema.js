@@ -4,12 +4,12 @@ const { modelLogger, databaseError } = require('./common.js');
 const Schema = mongoose.Schema;
 
 const messagesSchema = new Schema({
-  msg_type: Number,
-  msg_state: Number,
-  msg_from_group: Schema.Types.ObjectId,
-  msg_content: String,
-  msg_from_contact: { type: Schema.Types.ObjectId, ref: 'contacts' },
-  msg_to_contact: { type: Schema.Types.ObjectId, ref: 'contacts' },
+  message_type: Number,
+  message_state: Number,
+  message_from_group: Schema.Types.ObjectId,
+  message_content: String,
+  message_source: { type: Schema.Types.ObjectId, ref: 'contacts' },
+  message_target: { type: Schema.Types.ObjectId, ref: 'contacts' },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   appkey: String,
@@ -25,8 +25,8 @@ messagesSchema.statics.addMessage = function(params, callback) {
   });
 }
 
-messagesSchema.statics.getOneMessage = function(params, callback) {
-  return this.findOne(params).populate('msg_from_contact').populate('msg_to_contact').exec().then((data) => {
+messagesSchema.statics.getMessages = function(params, callback) {
+  return this.find(params).populate('msg_from_contact').populate('msg_to_contact').exec().then((data) => {
     callback(null, data);
   }, (error) => {
     modelLogger.error(error.message);

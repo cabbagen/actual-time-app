@@ -11,6 +11,7 @@ function loadModels() {
   require('../model/groups.model');
   require('../model/messages.model');
   require('../model/users.model');
+  require('../model/channels.model');
 }
 
 module.exports = function databaseInit() {
