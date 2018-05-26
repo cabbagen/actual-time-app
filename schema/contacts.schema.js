@@ -49,7 +49,7 @@ contactsSchema.statics.addContacts = function(params, callback) {
   });
 }
 
-contactsSchema.statics.getContactInfo = function(params, callback) {
+contactsSchema.statics.getContactInfo = function(params, selectedFieldParams = {}, isBased = false, callback) {
   if (!params.appkey || !params.id) {
     callback(paramsError, null);
     return;
@@ -57,12 +57,25 @@ contactsSchema.statics.getContactInfo = function(params, callback) {
   
   const condition = { appkey: params.appkey, _id: mongoose.Types.ObjectId(params.id) };
 
-  return this.findOne(condition).populate('friends').populate('groups').exec().then((data) => {
-    callback(null, data);
-  }, (error) => {
-    modelLogger.error(error.message);
-    callback(databaseError, null);
-  });
+  if (isBased) {
+    return this.findOne(condition, selectedFieldParams).exec().then((data) => {
+      callback(null, data);
+    }, (error) => {
+      modelLogger.error(error.message);
+      callback(databaseError, null);
+    });
+  } else {
+    return this.findOne(condition, selectedFieldParams)
+      .populate('friends')
+      .populate('groups')
+      .exec()
+      .then((data) => {
+        callback(null, data);
+      }, (error) => {
+        modelLogger.error(error.message);
+        callback(databaseError, null);
+      });
+  }
 }
 
 contactsSchema.statics.updateContaceInfo = function(params, updateInfo, callback) {
@@ -97,13 +110,13 @@ contactsSchema.statics.removeContactInfo = function(params, callback) {
   });
 }
 
-contactsSchema.statics.changeContactStatusBySocketId = function(socketId, updateInfo, callback) {
+contactsSchema.statics.setContactStatusBySocketId = function(socketId, state, callback) {
   if (typeof socketId === 'undefined') {
     callback(paramsError, null);
     return;
   }
 
-  return this.update({ socket_id: socketId }, updateInfo).exec().then((data) => {
+  return this.update({ socket_id: socketId }, { state }).exec().then((data) => {
     callback(null, data);
   }, (error) => {
     modelLogger.error(error.message);

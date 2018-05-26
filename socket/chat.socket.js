@@ -13,6 +13,7 @@
 
 const MessageModel = require('../model/messages.model');
 const ContactModel = require('../model/contacts.model');
+const ChannelModel = require('../model/channels.model');
 const { callbackDecorator } = require('../kernel/core');
 
 let chatApplication = null;  // this is a Singleton Pattern
@@ -33,14 +34,22 @@ class SocketChatService {
     this.chat = this.io.of(SocketChatService.socketPath).on('connection', (socket) => {
       // 连接 websocket IM 用户上线
       socket.on('on_line', (appkey, id) => {
-        console.log('IM 用户上线');
+        console.log(' ===> IM 用户上线');
         this.loginIMService(appkey, id, socket.client.id);
       });
 
       // 断开连接
       socket.on('disconnecting', (reason) => {
-        console.log('IM 用户下线');
+        console.log(' ===> IM 用户下线');
         this.logoutIMService(socket.client.id);
+      });
+
+      // 处理单聊消息
+      socket.on('chat_private', (appkey, data) => {
+        this.handlePrivateMessage(appkey, data)
+          .then(() => {
+            this.broadcastMessage();
+          })
       });
 
       // 推送未读消息 ...
@@ -54,12 +63,48 @@ class SocketChatService {
     const params = { appkey, id };
     const updatedParams = { state: 1, socket_id: socketId };
 
-    return callbackDecorator(ContactModel.updateContaceInfo.bind(ContactModel), params, updatedParams);
+    callbackDecorator(ContactModel.updateContaceInfo.bind(ContactModel), params, updatedParams);
   }
 
   logoutIMService(socketId) {
-    const updatedParams = { state: 0 };
-    return callbackDecorator(ContactModel.changeContactStatusBySocketId.bind(ContactModel), socketId, updatedParams);
+    callbackDecorator(ContactModel.setContactStatusBySocketId.bind(ContactModel), socketId, 0);
+  }
+
+  handlePrivateMessage(appkey, messageParmas) {
+    const condition = { appkey, id: messageParmas.target };
+    const selectedFieldParams = { state: 1 };
+    return callbackDecorator(ContactModel.getContactInfo.bind(ContactModel), condition, selectedFieldParams, true)
+      .then((data) => {
+        const messageInfo = {
+          message_type: messageParmas.type,
+          message_state: data.state,
+          message_target_group: null,
+          message_content: messageParmas.content,
+          message_source: messageParmas.source,
+          message_target: messageParmas.target,
+          appkey: appkey,
+        };
+        const channelInfo = {
+          appkey: appkey,
+          channel_id: `${messageParmas.source}@@${messageParmas.target}`,
+          channel_state: 1,
+          channel_members: data.state === 1
+            ? [messageParmas.source, messageParmas.target]
+            : [messageParmas.source],
+        };
+
+        return Promise.all([
+          callbackDecorator(MessageModel.addMessage.bind(MessageModel), messageInfo),
+          callbackDecorator(ChannelModel.createChatChannel.bind(ChannelModel), channelInfo),
+        ]);
+      })
+      .catch((error) => {
+        console.log('add message: ', error);
+      });
+  }
+
+  broadcastMessage() {
+
   }
 
   getIMServiceUnreadMessage(target) {

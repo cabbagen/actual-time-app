@@ -28,7 +28,7 @@ class ChatController extends BaseController {
 
     if (typeof id === 'undefined') return res.json(this.paramsError);
 
-    callbackDecorator(ContactsModel.getContactInfo.bind(ContactsModel), { id, appkey })
+    callbackDecorator(ContactsModel.getContactInfo.bind(ContactsModel), { id, appkey }, {}, false)
       .then(function(data) {
         return res.json({ state: 200, msg: null, data });
       })
