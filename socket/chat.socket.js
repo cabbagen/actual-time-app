@@ -46,10 +46,9 @@ class SocketChatService {
 
       // 处理单聊消息
       socket.on('chat_private', (appkey, data) => {
-        this.handlePrivateMessage(appkey, data)
-          .then(() => {
-            this.broadcastMessage();
-          })
+        this.handlePrivateMessage(appkey, data).then(() => {
+          this.broadcastMessage(data);
+        });
       });
 
       // 推送未读消息 ...
@@ -103,8 +102,8 @@ class SocketChatService {
       });
   }
 
-  broadcastMessage() {
-
+  broadcastMessage(data) {
+    console.log('data: ', data);
   }
 
   getIMServiceUnreadMessage(target) {

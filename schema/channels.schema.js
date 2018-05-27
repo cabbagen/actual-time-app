@@ -21,4 +21,29 @@ channelsSchema.statics.createChatChannel = function(params, callback) {
   });
 }
 
+// 获取聊天信道
+channelsSchema.statics.getChatChannel = function(source, target, callback) {
+  const channel_first_id = `${source}@@${target}`;
+  const channel_seconed_id = `${target}@@${source}`;
+
+  return this.findOne({ channel_id: { $in: [channel_first_id, channel_seconed_id] } }).exec()
+    .then((data) => {
+      callback(null, data);
+    }, (error) => {
+      modelLogger.error(error.message);
+      callback(databaseError, null);
+    });
+}
+
+// 当用户退出登录时，删除其相关的聊天信道
+channelsSchema.statics.removeChatChannelByMember = function(contactId, callback) {
+  return this.remove({ channel_members: { $all: [mongoose.Types.ObjectId(contactId)] } }).exec()
+    .then((data) => {
+      callback(null, data);
+    }, (error) => {
+      modelLogger.error(error.message);
+      callback(databaseError, null);
+    });
+}
+
 module.exports = channelsSchema;
