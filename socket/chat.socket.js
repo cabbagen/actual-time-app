@@ -47,7 +47,9 @@ class SocketChatService {
       // 处理单聊消息
       socket.on('chat_private', (appkey, data) => {
         this.handlePrivateMessage(appkey, data).then(() => {
-          this.broadcastMessage(data);
+          this.broadcastMessage(socket, data);
+        }, (error) => {
+          console.log(error);
         });
       });
 
@@ -92,7 +94,7 @@ class SocketChatService {
             : [messageParmas.source],
         };
 
-        return Promise.all([
+        Promise.all([
           callbackDecorator(MessageModel.addMessage.bind(MessageModel), messageInfo),
           callbackDecorator(ChannelModel.createChatChannel.bind(ChannelModel), channelInfo),
         ]);
@@ -102,8 +104,16 @@ class SocketChatService {
       });
   }
 
-  broadcastMessage(data) {
-    console.log('data: ', data);
+  broadcastMessage(chatSocket, data) {
+    callbackDecorator(ChannelModel.getChatChannel.bind(ChannelModel), data.source, data.target)
+      .then((result) => {
+        chatSocket.join(result.channel_id, () => {
+          chatSocket.emit('chat_private', data).to(result.channel_id).broadcast.emit('chat_private', data);
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   getIMServiceUnreadMessage(target) {
