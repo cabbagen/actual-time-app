@@ -46,17 +46,21 @@ class SocketChatService {
 
       // 处理单聊消息
       socket.on('chat_private', (appkey, data) => {
-        this.handlePrivateMessage(appkey, data).then(() => {
-          this.broadcastMessage(socket, data);
-        }, (error) => {
-          console.log(error);
+        this.handlePrivateMessage(appkey, data).then((message) => {
+          const params = { _id: message._id };
+          return callbackDecorator(MessageModel.getMessages.bind(MessageModel, params));
+        })
+        .then((messages) => {
+          this.broadcastMessage(socket, messages[0]);
+        })
+        .catch((error) => {
+          console.log('chat_private error: ', error);
         });
       });
 
       // 推送未读消息 ...
 
       // 转发消息 ...
-
     });
   }
 
@@ -75,44 +79,51 @@ class SocketChatService {
     const condition = { appkey, id: messageParmas.target };
     const selectedFieldParams = { state: 1 };
     return callbackDecorator(ContactModel.getContactInfo.bind(ContactModel), condition, selectedFieldParams, true)
-      .then((data) => {
+      .then(result => {
+        return result.state;
+      })
+      .then((targetState) => {
+        const channelInfo = {
+          appkey: appkey,
+          channel_id: `${messageParmas.source}@@${messageParmas.target}`,
+          channel_state: 1,
+          channel_members: targetState === 1
+            ? [messageParmas.source, messageParmas.target]
+            : [messageParmas.source],
+        };
+
+        callbackDecorator(ChannelModel.createChatChannel.bind(ChannelModel), channelInfo);
+
+        return targetState;
+      })
+      .then((targetState) => {
         const messageInfo = {
           message_type: messageParmas.type,
-          message_state: data.state,
+          message_state: targetState,
           message_target_group: null,
           message_content: messageParmas.content,
           message_source: messageParmas.source,
           message_target: messageParmas.target,
           appkey: appkey,
         };
-        const channelInfo = {
-          appkey: appkey,
-          channel_id: `${messageParmas.source}@@${messageParmas.target}`,
-          channel_state: 1,
-          channel_members: data.state === 1
-            ? [messageParmas.source, messageParmas.target]
-            : [messageParmas.source],
-        };
 
-        Promise.all([
-          callbackDecorator(MessageModel.addMessage.bind(MessageModel), messageInfo),
-          callbackDecorator(ChannelModel.createChatChannel.bind(ChannelModel), channelInfo),
-        ]);
-      })
-      .catch((error) => {
-        console.log('add message: ', error);
+        return callbackDecorator(MessageModel.addMessage.bind(MessageModel), messageInfo);
       });
   }
 
-  broadcastMessage(chatSocket, data) {
-    callbackDecorator(ChannelModel.getChatChannel.bind(ChannelModel), data.source, data.target)
+  broadcastMessage(chatSocket, messageInfo) {
+    const source = messageInfo.message_source._id;
+    const target = messageInfo.message_target._id;
+
+    callbackDecorator(ChannelModel.getChatChannel.bind(ChannelModel), source, target)
       .then((result) => {
         chatSocket.join(result.channel_id, () => {
-          chatSocket.emit('chat_private', data).to(result.channel_id).broadcast.emit('chat_private', data);
+          chatSocket
+            .emit('chat_private', messageInfo)
+            .to(result.channel_id)
+            .broadcast
+            .emit('chat_private', messageInfo);
         });
-      })
-      .catch((error) => {
-        console.log(error);
       });
   }
 

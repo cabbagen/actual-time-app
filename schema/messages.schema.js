@@ -25,7 +25,7 @@ messagesSchema.statics.addMessage = function(params, callback) {
 }
 
 messagesSchema.statics.getMessages = function(params, callback) {
-  return this.find(params).populate('message_source').populate('msg_target').exec().then((data) => {
+  return this.find(params).populate('message_source').populate('message_target').exec().then((data) => {
     callback(null, data);
   }, (error) => {
     modelLogger.error(error.message);
