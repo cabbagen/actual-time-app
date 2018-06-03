@@ -36,7 +36,6 @@ class ChatController extends BaseController {
         return res.json({ state: 203, msg: error.toString(), data: null });
       });
   }
-
 }
 
 module.exports = ChatController;

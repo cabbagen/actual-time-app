@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const moment = require('moment');
 const { modelLogger, databaseError } = require('./common.js');
 
 const Schema = mongoose.Schema;
@@ -26,7 +27,14 @@ messagesSchema.statics.addMessage = function(params, callback) {
 
 messagesSchema.statics.getMessages = function(params, callback) {
   return this.find(params).populate('message_source').populate('message_target').exec().then((data) => {
-    callback(null, data);
+    const adaptedTimeData = data.map((message) => {
+      const result = Object.assign({}, message);
+      return Object.assign({}, result._doc, {
+        created_at: moment(message.created_at).utc().utcOffset(+8).format('YYYY-MM-DD HH:mm:ss'),
+        updated_at: moment(message.updated_at).utc().utcOffset(+8).format('YYYY-MM-DD HH:mm:ss'),
+      });
+    });
+    callback(null, adaptedTimeData);
   }, (error) => {
     modelLogger.error(error.message);
     callback(databaseError, null);

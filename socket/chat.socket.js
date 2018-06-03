@@ -34,13 +34,11 @@ class SocketChatService {
     this.chat = this.io.of(SocketChatService.socketPath).on('connection', (socket) => {
       // 连接 websocket IM 用户上线
       socket.on('on_line', (appkey, id) => {
-        console.log(' ===> IM 用户上线');
         this.loginIMService(appkey, id, socket.client.id);
       });
 
       // 断开连接
       socket.on('disconnecting', (reason) => {
-        console.log(' ===> IM 用户下线');
         this.logoutIMService(socket.client.id);
       });
 
