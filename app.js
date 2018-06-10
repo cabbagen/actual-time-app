@@ -9,7 +9,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
 // chat socket service
-const { SocketChatService } = require('./socket/chat.socket');
+const { SocketChatService } = require('./micro-services/chat/index');
 SocketChatService.init(io);
 
 // 初始化日志服务

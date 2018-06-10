@@ -124,4 +124,8 @@ contactsSchema.statics.setContactStatusBySocketId = function(socketId, state, ca
   });
 }
 
+contactsSchema.statics.addRecentContact = function() {
+
+}
+
 module.exports = contactsSchema;
