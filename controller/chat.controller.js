@@ -29,8 +29,11 @@ class ChatController extends BaseController {
     if (typeof id === 'undefined') return res.json(this.paramsError);
 
     callbackDecorator(ContactsModel.getContactInfo.bind(ContactsModel), { id, appkey }, {}, false)
-      .then(function(data) {
-        return res.json({ state: 200, msg: null, data });
+      .then(function(contactInfo) {
+        return callbackDecorator(MessagesModel.getUnReadMessages.bind(MessagesModel), id).then((unReadInfos) => {
+          const result = { ...contactInfo._doc, recentContacts: unReadInfos }
+          return res.json({ state: 200, msg: null, data: result });
+        });
       })
       .catch(function(error) {
         return res.json({ state: 203, msg: error.toString(), data: null });

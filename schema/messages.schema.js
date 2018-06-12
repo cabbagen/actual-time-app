@@ -28,20 +28,43 @@ messagesSchema.statics.addMessage = function(params, callback) {
 
 messagesSchema.statics.getMessage = function(params, callback) {
   return this.findOne(params).populate('message_source').populate('message_target').exec().then((data) => {
-    const result = Object.assign({}, data);
-    const adaptedTimeData = Object.assign({}, result._doc, {
-      created_at: moment(data.created_at).utc().utcOffset(+8).format('YYYY-MM-DD HH:mm:ss'),
-      updated_at: moment(data.updated_at).utc().utcOffset(+8).format('YYYY-MM-DD HH:mm:ss'),
-    });
-    callback(null, adaptedTimeData);
+    callback(null, data);
   }, (error) => {
     modelLogger.error(error.message);
     callback(databaseError, null);
   });
 }
 
-messagesSchema.statics.getMessageRecords = function(sourceId) {
-
+messagesSchema.statics.getUnReadMessages = function(sourceId, callback) {
+  return this.aggregate([
+    {
+      $match: {
+        $or: [
+          { message_source: mongoose.Types.ObjectId(sourceId) },
+          { message_target: mongoose.Types.ObjectId(sourceId) },
+        ],
+        message_state: 0,
+      }
+    },
+    {
+      $group: {
+        _id: "$message_channel",
+        last_message: { $last: "$message_content" },
+        last_target: { $last: "$message_target" },
+        last_target_group: { $last: "$message_target_group" },
+        last_source: { $last: "$message_source" },
+        last_time: { $last: "$created_at" },
+        total: { $sum: 1 }
+      }
+    }
+  ], function(error, data) {
+    if (error) {
+      modelLogger.error(error.message);
+      callback(databaseError, null);
+    } else {
+      callback(null, data);
+    }
+  })
 }
 
 module.exports = messagesSchema;

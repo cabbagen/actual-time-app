@@ -12,24 +12,27 @@ const channelsSchema = new Schema({
   appkey: String,
 });
 
-// 添加聊天信道 - 字段和 schema 相同
+// 创建 channel - params 与 schema 相同
 channelsSchema.statics.createChatChannel = function(params, callback) {
-  const source = params.channel_id.split('@@')[0];
-  const target = params.channel_id.split('@@')[1];
-
-  const channel_first_id = `${source}@@${target}`;
-  const channel_seconed_id = `${target}@@${source}`;
-
-  return this.findOne({ channel_id: { $in: [channel_first_id, channel_seconed_id] } }).exec()
-    .then((data) => {
-      if (!data) this.create(params, function(err, data) {
-        if (err) console.log(err);
-      });
-    })
-    .catch((error) => {
+  return this.create(params, function(error, data) {
+    if (error) {
       modelLogger.error(error.message);
       callback(databaseError, null);
-    });
+    } else {
+      callback(null, data);
+    }
+  });
+}
+
+channelsSchema.statics.updateChatChannel = function(condition, params, callback) {
+  return this.update(condition, params, function(error, data) {
+    if (error) {
+      modelLogger.error(error.message);
+      callback(error, null);
+    } else {
+      callback(null, data);
+    }
+  });
 }
 
 // 获取聊天信道
