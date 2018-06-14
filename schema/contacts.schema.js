@@ -19,11 +19,8 @@ const contactsSchema = new Schema({
   state: Number,
 });
 
-contactsSchema.statics.getContactsFromGroupOrAll = function(params, callback) {
-  if (!params.appKey) {
-    callback(paramsError, null);
-    return;
-  }
+contactsSchema.statics.getContactsFromGroupOrAll = function(params) {
+  if (!params.appKey) return null;
 
   const query = { appKey: params.appKey };
 
@@ -31,101 +28,47 @@ contactsSchema.statics.getContactsFromGroupOrAll = function(params, callback) {
     query.groups = { $all: [ mongoose.Types.ObjectId(params.groupId) ] };
   }
 
-  return this.find(query).exec().then((data) => {
-    callback(null, data);
-  }, (error) => {
-    modelLogger.error(error.message);
-    callback(databaseError, null);
-  });
+  return this.find(query).exec();
 }
 
 // 创建联系人 - 字段 和 schema 相同
-contactsSchema.statics.addContacts = function(params, callback) {
-  return this.create(params).then((data) => {
-    callback(null, data);
-  }, (error) => {
-    modelLogger.error(error.message);
-    callback(databaseError, null);
-  });
+contactsSchema.statics.addContacts = function(params) {
+  return this.create(params);
 }
 
-contactsSchema.statics.getContactInfo = function(params, selectedFieldParams = {}, isBased = false, callback) {
-  if (!params.appkey || !params.id) {
-    callback(paramsError, null);
-    return;
-  }
+contactsSchema.statics.getContactInfo = function(params, selectedFieldParams = {}, isBased = false) {
+  if (!params.appkey || !params.id) return null;
   
   const condition = { appkey: params.appkey, _id: mongoose.Types.ObjectId(params.id) };
 
   if (isBased) {
-    return this.findOne(condition, selectedFieldParams).exec().then((data) => {
-      callback(null, data);
-    }, (error) => {
-      modelLogger.error(error.message);
-      callback(databaseError, null);
-    });
-  } else {
-    return this.findOne(condition, selectedFieldParams)
-      .populate('friends')
-      .populate('groups')
-      .exec()
-      .then((data) => {
-        callback(null, data);
-      }, (error) => {
-        modelLogger.error(error.message);
-        callback(databaseError, null);
-      });
+    return this.findOne(condition, selectedFieldParams).exec();
   }
+
+  return this.findOne(condition, selectedFieldParams).populate('friends').populate('groups').exec();
+  
 }
 
-contactsSchema.statics.updateContaceInfo = function(params, updateInfo, callback) {
-  if (!params.appkey || !params.id) {
-    callback(paramsError, null);
-    return;
-  }
+contactsSchema.statics.updateContaceInfo = function(params, updateInfo) {
+  if (!params.appkey || !params.id) return null;
 
   const condition = { appkey: params.appkey, _id: mongoose.Types.ObjectId(params.id) };
   
-  return this.update(condition, updateInfo).exec().then((data) => {
-    callback(null, data);
-  }, (error) => {
-    modelLogger.error(error.message);
-    callback(databaseError, null);
-  });
+  return this.update(condition, updateInfo).exec();
 }
 
-contactsSchema.statics.removeContactInfo = function(params, callback) {
-  if (!params.appkey || !params.id) {
-    callback(paramsError, null);
-    return;
-  }
+contactsSchema.statics.removeContactInfo = function(params) {
+  if (!params.appkey || !params.id) return null;
 
   const condition = { appkey: params.appkey, _id: mongoose.Types.ObjectId(params.id) };
 
-  return this.remove(condition).exec().then((data) => {
-    callback(null, data);
-  }, (error) => {
-    modelLogger.error(error.message);
-    callback(databaseError, null);
-  });
+  return this.remove(condition).exec();
 }
 
-contactsSchema.statics.setContactStatusBySocketId = function(socketId, state, callback) {
-  if (typeof socketId === 'undefined') {
-    callback(paramsError, null);
-    return;
-  }
+contactsSchema.statics.setContactStatusBySocketId = function(socketId, state) {
+  if (typeof socketId === 'undefined') return null;
 
-  return this.update({ socket_id: socketId }, { state }).exec().then((data) => {
-    callback(null, data);
-  }, (error) => {
-    modelLogger.error(error.message);
-    callback(databaseError, null);
-  });
-}
-
-contactsSchema.statics.addRecentContact = function() {
-
+  return this.update({ socket_id: socketId }, { state }).exec();
 }
 
 module.exports = contactsSchema;

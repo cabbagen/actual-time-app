@@ -3,22 +3,22 @@ const { callbackDecorator } = require('../../kernel/core');
 
 class ContactService {
 
-  loginIMService(appkey, id, socketId) {
+  async loginIMService(appkey, id, socketId) {
     const params = { appkey, id };
     const updatedParams = { state: 1, socket_id: socketId };
 
-    callbackDecorator(ContactModel.updateContaceInfo.bind(ContactModel), params, updatedParams);
+    return await ContactModel.updateContaceInfo(params);
   }
 
-  logoutIMService(socketId) {
-    callbackDecorator(ContactModel.setContactStatusBySocketId.bind(ContactModel), socketId, 0);
+  async logoutIMService(socketId) {
+    return await ContactModel.setContactStatusBySocketId(socketId, 0);
   }
 
-  getContactIsOnLine(appkey, id) {
+  async getContactIsOnLine(appkey, id) {
     const condition = { appkey, id };
     const selectedFieldParams = { state: 1 };
 
-    return callbackDecorator(ContactModel.getContactInfo.bind(ContactModel), condition, selectedFieldParams, true);
+    return await ContactModel.getContactInfo(condition, selectedFieldParams, true);
   }
 }
 

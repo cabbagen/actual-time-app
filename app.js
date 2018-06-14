@@ -1,4 +1,6 @@
 const express = require('express');
+require('express-async-errors');
+
 const path = require('path');
 const app = express();
 const { applicationInit, registeMiddleware } = require('./kernel/core.js');

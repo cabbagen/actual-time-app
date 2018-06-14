@@ -17,25 +17,15 @@ const messagesSchema = new Schema({
 });
 
 // 添加消息记录 - 字段和 schema 相同
-messagesSchema.statics.addMessage = function(params, callback) {
-  return this.create(params).then((data) => {
-    callback(null, data);
-  }, (error) => {
-    modelLogger.error(error.message);
-    callback(databaseError, null);
-  });
+messagesSchema.statics.addMessage = function(params) {
+  return this.create(params);
 }
 
-messagesSchema.statics.getMessage = function(params, callback) {
-  return this.findOne(params).populate('message_source').populate('message_target').exec().then((data) => {
-    callback(null, data);
-  }, (error) => {
-    modelLogger.error(error.message);
-    callback(databaseError, null);
-  });
+messagesSchema.statics.getMessage = function(params) {
+  return this.findOne(params).populate('message_source').populate('message_target').exec();
 }
 
-messagesSchema.statics.getUnReadMessages = function(sourceId, callback) {
+messagesSchema.statics.getUnReadMessages = function(sourceId) {
   return this.aggregate([
     {
       $match: {
@@ -48,23 +38,40 @@ messagesSchema.statics.getUnReadMessages = function(sourceId, callback) {
     },
     {
       $group: {
-        _id: "$message_channel",
-        last_message: { $last: "$message_content" },
-        last_target: { $last: "$message_target" },
-        last_target_group: { $last: "$message_target_group" },
-        last_source: { $last: "$message_source" },
-        last_time: { $last: "$created_at" },
+        _id: '$message_channel',
+        last_message: { $last: '$message_content' },
+        last_target: { $last: '$message_target' },
+        last_target_group: { $last: '$message_target_group' },
+        last_source: { $last: '$message_source' },
+        last_time: { $last: '$created_at' },
         total: { $sum: 1 }
       }
+    },
+    {
+      $lookup: {
+        from: 'contacts',
+        localField: 'last_target',
+        foreignField: '_id',
+        as: 'last_target'
+      }
+    },
+    {
+      $lookup: {
+        from: 'contacts',
+        localField: 'last_source',
+        foreignField: '_id',
+        as: 'last_source'
+      }
+    },
+    {
+      $lookup: {
+        from: 'groups',
+        localField: 'last_target_group',
+        foreignField: '_id',
+        as: 'last_target_group'
+      }
     }
-  ], function(error, data) {
-    if (error) {
-      modelLogger.error(error.message);
-      callback(databaseError, null);
-    } else {
-      callback(null, data);
-    }
-  })
+  ]);
 }
 
 module.exports = messagesSchema;

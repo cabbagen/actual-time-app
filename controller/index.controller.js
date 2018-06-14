@@ -19,7 +19,7 @@ class IndexController extends BaseController {
     ];
   }
 
-  renderIndex(req, res, next) {
+  async renderIndex(req, res, next) {
     res.render('index/index', { projects: this.projects });
   }
 
@@ -31,7 +31,7 @@ class IndexController extends BaseController {
     res.status(200).send(captcha.data);
   }
 
-  login(req, res, next) {
+  async login(req, res, next) {
     const { username, password, validateImageText } = req.body;
     const sessionCaptcha = req.session.captcha;
     const isPassCheckValidateImageText = this.checkValidateImageText(sessionCaptcha, validateImageText);
@@ -42,25 +42,24 @@ class IndexController extends BaseController {
 
     const passwordHash = cryptoProvider.getSaledHashSync(password);
 
-    UsersModel.findOne({ username }).exec()
-      .then((data) => {
-        if (cryptoProvider.compareSaledHashSync(password, passwordHash)) {
-          req.session.userId = data._id;
-          res.json({ status: 200, data, msg: 'ok', type: null });
-        } else {
-          res.json({ status: 500, data: null, msg: '输入密码错误', type: 'password-error' });
-        }
-      })
-      .catch((error) => {
-        res.json({ status: 500, msg: '数据库查询失败!', data: null, type: 'username-error' });
-      });
+    const userInfo = await UsersModel.findOne({ username }).exec();
+
+    if (!userInfo) {
+      return  res.json({ status: 500, msg: '数据库查询失败!', data: null, type: 'username-error' });
+    }
+
+    if (!cryptoProvider.compareSaledHashSync(password, passwordHash)) {
+      return res.json({ status: 500, data: null, msg: '输入密码错误', type: 'password-error' });
+    }
+
+    req.session.userId = userInfo._id;
+    return res.json({ status: 200, data: userInfo, msg: 'ok', type: null });
   }
 
   checkValidateImageText(sessionCaptcha, validateImageText) {
     if (!validateImageText || validateImageText === '') {
       return false;
     }
-
     return sessionCaptcha === validateImageText;
   }
 

@@ -13,51 +13,21 @@ const channelsSchema = new Schema({
 });
 
 // 创建 channel - params 与 schema 相同
-channelsSchema.statics.createChatChannel = function(params, callback) {
-  return this.create(params, function(error, data) {
-    if (error) {
-      modelLogger.error(error.message);
-      callback(databaseError, null);
-    } else {
-      callback(null, data);
-    }
-  });
+channelsSchema.statics.createChatChannel = function(params) {
+  return this.create(params);
 }
 
-channelsSchema.statics.updateChatChannel = function(condition, params, callback) {
-  return this.update(condition, params, function(error, data) {
-    if (error) {
-      modelLogger.error(error.message);
-      callback(error, null);
-    } else {
-      callback(null, data);
-    }
-  });
+channelsSchema.statics.updateChatChannel = function(condition, params) {
+  return this.update(condition, params).exec();
 }
 
 // 获取聊天信道
-channelsSchema.statics.getChatChannel = function(source, target, callback) {
+channelsSchema.statics.getChatChannel = function(source, target) {
   const channel_first_id = `${source}@@${target}`;
   const channel_seconed_id = `${target}@@${source}`;
 
-  return this.findOne({ channel_id: { $in: [channel_first_id, channel_seconed_id] } }).exec()
-    .then((data) => {
-      callback(null, data);
-    }, (error) => {
-      modelLogger.error(error.message);
-      callback(databaseError, null);
-    });
+  return this.findOne({ channel_id: { $in: [channel_first_id, channel_seconed_id] } }).exec();
 }
 
-// 当用户退出登录时，删除其相关的聊天信道
-channelsSchema.statics.removeChatChannelByMember = function(contactId, callback) {
-  return this.remove({ channel_members: { $all: [mongoose.Types.ObjectId(contactId)] } }).exec()
-    .then((data) => {
-      callback(null, data);
-    }, (error) => {
-      modelLogger.error(error.message);
-      callback(databaseError, null);
-    });
-}
 
 module.exports = channelsSchema;

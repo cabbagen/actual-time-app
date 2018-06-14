@@ -21,23 +21,23 @@ class ChatController extends BaseController {
   }
 
   // 获取联系人信息
-  getContactInfo(req, res) {
+  async getContactInfo(req, res) {
     const { appkey, id } = req.query;
 
     if (typeof appkey === 'undefined') return res.json(this.appkeyError);
 
     if (typeof id === 'undefined') return res.json(this.paramsError);
 
-    callbackDecorator(ContactsModel.getContactInfo.bind(ContactsModel), { id, appkey }, {}, false)
-      .then(function(contactInfo) {
-        return callbackDecorator(MessagesModel.getUnReadMessages.bind(MessagesModel), id).then((unReadInfos) => {
-          const result = { ...contactInfo._doc, recentContacts: unReadInfos }
-          return res.json({ state: 200, msg: null, data: result });
-        });
-      })
-      .catch(function(error) {
-        return res.json({ state: 203, msg: error.toString(), data: null });
-      });
+    const contactInfo = await ContactsModel.getContactInfo({ id, appkey }, {}, false);
+    const unReadInfos = await MessagesModel.getUnReadMessages(id);
+
+    if (!contactInfo || !unReadInfos) {
+      return res.json({ state: 203, msg: '获取信息失败', data: null });
+    }
+
+    const result = { ...contactInfo._doc, recentContacts: unReadInfos };
+
+    return res.json({ state: 200, msg: null, data: result });
   }
 }
 

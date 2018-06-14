@@ -22,7 +22,6 @@ const eventCenter = {
   private: 'chat_private',
 };
 
-
 // it will be a Singleton
 let chatApplication = null;
 
@@ -51,43 +50,35 @@ class SocketChatService {
       });
 
       // 处理单聊消息
-      socket.on(eventCenter.private, (appkey, data) => {
-        this.handlePrivateMessage(appkey, data).then((message) => {
-          return MessageService.getMessageInfoByMessageId(message._id);
-        })
-        .then((message) => {
-          this.broadcastMessage(socket, message);
-        })
-        .catch((error) => {
-          console.log('chat_private error: ', error);
-        });
+      socket.on(eventCenter.private, async (appkey, data) => {
+        const message = await this.handlePrivateMessage(appkey,data);
+        const fullMessageInfo = await MessageService.getMessageInfoByMessageId(message._id);
+
+        this.broadcastMessage(socket, fullMessageInfo);
       });
     });
   }
 
-  handlePrivateMessage(appkey, messageParmas) {
-    return ContactService.getContactIsOnLine(appkey, messageParmas.target).then((result) => {
-      const targetState = result.state;
-      ChannelService.createIMChannel(appkey, targetState, messageParmas.source, messageParmas.target)
-      return targetState;
-    })
-    .then((targetState) => {
-      return MessageService.saveIMMessage(appkey, targetState, 2, messageParmas);
-    });
+  async handlePrivateMessage(appkey, messageParmas) {
+    const contactStateInfo = await ContactService.getContactIsOnLine(appkey, messageParmas.target);
+
+    ChannelService.createIMChannel(appkey, contactStateInfo.state, messageParmas.source, messageParmas.target);
+
+    return await MessageService.saveIMMessage(appkey, contactStateInfo.state, 2, messageParmas);
   }
 
-  broadcastMessage(chatSocket, messageInfo) {
+  async broadcastMessage(chatSocket, messageInfo) {
     const source = messageInfo.message_source._id;
     const target = messageInfo.message_target._id;
 
-    ChannelService.getChannelInfoBySourceIdAndTargetId(source, target).then((result) => {
-      chatSocket.join(result.channel_id, () => {
-        chatSocket
-          .emit('chat_private', messageInfo)
-          .to(result.channel_id)
-          .broadcast
-          .emit('chat_private', messageInfo);
-      });
+    const channelInfo = await ChannelService.getChannelInfoBySourceIdAndTargetId(source, target);
+
+    chatSocket.join(channelInfo.channel_id, () => {
+      chatSocket
+        .emit('chat_private', messageInfo)
+        .to(channelInfo.channel_id)
+        .broadcast
+        .emit('chat_private', messageInfo);
     });
   }
 }
