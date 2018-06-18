@@ -18,14 +18,19 @@ const messagesSchema = new Schema({
 
 // 添加消息记录 - 字段和 schema 相同
 messagesSchema.statics.addMessage = function(params) {
-  return this.create(params);
+  return this.create(params).catch(function(error) {
+    console.log(error);
+  });
 }
 
 messagesSchema.statics.getMessage = function(params) {
-  return this.findOne(params).populate('message_source').populate('message_target').exec();
+  return this.findOne(params).populate('message_source').populate('message_target').exec()
+    .catch(function(error) {
+      console.log(error);
+    });
 }
 
-messagesSchema.statics.getUnReadMessages = function(sourceId) {
+messagesSchema.statics.getRecentContactInfos = function(sourceId) {
   return this.aggregate([
     {
       $match: {
@@ -48,30 +53,17 @@ messagesSchema.statics.getUnReadMessages = function(sourceId) {
       }
     },
     {
-      $lookup: {
-        from: 'contacts',
-        localField: 'last_target',
-        foreignField: '_id',
-        as: 'last_target'
-      }
+      $lookup: { from: 'contacts', localField: 'last_target', foreignField: '_id', as: 'last_target' }
     },
     {
-      $lookup: {
-        from: 'contacts',
-        localField: 'last_source',
-        foreignField: '_id',
-        as: 'last_source'
-      }
+      $lookup: { from: 'contacts', localField: 'last_source', foreignField: '_id', as: 'last_source' }
     },
     {
-      $lookup: {
-        from: 'groups',
-        localField: 'last_target_group',
-        foreignField: '_id',
-        as: 'last_target_group'
-      }
+      $lookup: { from: 'groups', localField: 'last_target_group', foreignField: '_id', as: 'last_target_group' }
     }
-  ]);
+  ]).exec().catch(function(error) {
+    console.log(error);
+  });
 }
 
 module.exports = messagesSchema;

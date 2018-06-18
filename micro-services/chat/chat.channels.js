@@ -1,5 +1,4 @@
 const ChannelModel = require('../../model/channels.model');
-const { callbackDecorator } = require('../../kernel/core');
 
 class ChannelService {
 

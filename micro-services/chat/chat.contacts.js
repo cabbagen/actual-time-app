@@ -1,5 +1,4 @@
 const ContactModel = require('../../model/contacts.model');
-const { callbackDecorator } = require('../../kernel/core');
 
 class ContactService {
 
@@ -7,7 +6,7 @@ class ContactService {
     const params = { appkey, id };
     const updatedParams = { state: 1, socket_id: socketId };
 
-    return await ContactModel.updateContaceInfo(params);
+    return await ContactModel.updateContaceInfo(params, updatedParams);
   }
 
   async logoutIMService(socketId) {

@@ -57,20 +57,8 @@ function registeMiddleware(app, middlewares) {
   app.use(normalMiddlewares, specialMiddlewares);
 }
 
-function callbackDecorator(callback, ...callbackArguments) {
-  const promise = new Promise((resolve, reject) => {
-    callback(...callbackArguments, (error, data) => {
-      if (error) reject(error);
-      else resolve(data);
-    });
-  });
-
-  return promise;
-}
-
 module.exports = {
   applicationInit,
   registeRouter,
   registeMiddleware,
-  callbackDecorator,
 };

@@ -1,5 +1,4 @@
 const MessageModel = require('../../model/messages.model');
-const { callbackDecorator } = require('../../kernel/core');
 const { ChannelService } = require('./chat.channels');
 
 class MessageService {
@@ -23,6 +22,10 @@ class MessageService {
   async getMessageInfoByMessageId(messageId) {
     const params = { _id: messageId };
     return await MessageModel.getMessage(params);
+  }
+
+  async getUnreadMessages(socketId) {
+    
   }
 }
 

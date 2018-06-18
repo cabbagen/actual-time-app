@@ -1,7 +1,6 @@
 const BaseController = require('./base.controller.js');
 const ContactsModel = require('../model/contacts.model.js');
 const MessagesModel = require('../model/messages.model.js');
-const { callbackDecorator } = require('../kernel/core.js');
 const utils = require('../providers/utils.provider.js');
 
 class ChatController extends BaseController {
@@ -29,13 +28,13 @@ class ChatController extends BaseController {
     if (typeof id === 'undefined') return res.json(this.paramsError);
 
     const contactInfo = await ContactsModel.getContactInfo({ id, appkey }, {}, false);
-    const unReadInfos = await MessagesModel.getUnReadMessages(id);
+    const recentContactInfos = await MessagesModel.getRecentContactInfos(id);
 
-    if (!contactInfo || !unReadInfos) {
+    if (!contactInfo || !recentContactInfos) {
       return res.json({ state: 203, msg: '获取信息失败', data: null });
     }
 
-    const result = { ...contactInfo._doc, recentContacts: unReadInfos };
+    const result = { ...contactInfo._doc, recentContacts: recentContactInfos };
 
     return res.json({ state: 200, msg: null, data: result });
   }

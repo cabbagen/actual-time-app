@@ -14,11 +14,15 @@ const channelsSchema = new Schema({
 
 // 创建 channel - params 与 schema 相同
 channelsSchema.statics.createChatChannel = function(params) {
-  return this.create(params);
+  return this.create(params).catch(function(error) {
+    console.log(error);
+  });
 }
 
 channelsSchema.statics.updateChatChannel = function(condition, params) {
-  return this.update(condition, params).exec();
+  return this.update(condition, params).exec().catch(function(error) {
+    console.log(error);
+  });
 }
 
 // 获取聊天信道
@@ -26,7 +30,10 @@ channelsSchema.statics.getChatChannel = function(source, target) {
   const channel_first_id = `${source}@@${target}`;
   const channel_seconed_id = `${target}@@${source}`;
 
-  return this.findOne({ channel_id: { $in: [channel_first_id, channel_seconed_id] } }).exec();
+  return this.findOne({ channel_id: { $in: [channel_first_id, channel_seconed_id] } }).exec()
+    .catch(function(error) {
+      console.log(error);
+    });
 }
 
 

@@ -17,12 +17,14 @@ const usersSchema = new Schema({
   appKey: String,
 });
 
-usersSchema.statics.createUser = function(params, callback) {
+usersSchema.statics.createUser = function(params) {
   const realParams = Object.assign({}, params, {
     password: cryptoProvider.getSaledHashSync(params.password),
     appKey: utilsProvider.makeRandomAppkey(),
   });
-  return this.create(realParams, callback);
+  return this.create(realParams).catch(function(error) {
+    console.log(error);
+  });
 }
 
 module.exports = usersSchema;
