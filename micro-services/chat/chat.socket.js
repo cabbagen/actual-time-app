@@ -60,11 +60,11 @@ class SocketChatService {
   }
 
   async handlePrivateMessage(appkey, messageParmas) {
-    const contactStateInfo = await ContactService.getContactIsOnLine(appkey, messageParmas.target);
+    const targetContactStateInfo = await ContactService.getContactIsOnLine(appkey, messageParmas.target);
 
-    ChannelService.createIMChannel(appkey, contactStateInfo.state, messageParmas.source, messageParmas.target);
+    ChannelService.createIMChannel(appkey, targetContactStateInfo.state, messageParmas.source, messageParmas.target);
 
-    return await MessageService.saveIMMessage(appkey, contactStateInfo.state, 2, messageParmas);
+    return await MessageService.saveIMMessage(appkey, targetContactStateInfo.state, 2, messageParmas);
   }
 
   async broadcastMessage(chatSocket, messageInfo) {
@@ -72,13 +72,13 @@ class SocketChatService {
     const target = messageInfo.message_target._id;
 
     const channelInfo = await ChannelService.getChannelInfoBySourceIdAndTargetId(source, target);
-
+    
     chatSocket.join(channelInfo.channel_id, () => {
+      console.log(chatSocket.rooms);
       chatSocket
-        .emit('chat_private', messageInfo)
+        .emit(eventCenter.private, messageInfo)
         .to(channelInfo.channel_id)
-        .broadcast
-        .emit('chat_private', messageInfo);
+        .emit(eventCenter.private, messageInfo);
     });
   }
 }

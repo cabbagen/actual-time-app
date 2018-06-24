@@ -8,7 +8,7 @@ const routerMap = {
     ['/getContactInfo']: chatController.getContactInfo.bind(chatController),
   },
   post: {
-    // ['/loginChatApplication']: chatController.loginChatServer.bind(chatController),   
+    ['/createChatChannel']: chatController.createChatChannel.bind(chatController),
   },
 };
 

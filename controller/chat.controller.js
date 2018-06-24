@@ -38,6 +38,12 @@ class ChatController extends BaseController {
 
     return res.json({ state: 200, msg: null, data: result });
   }
+
+  async createChatChannel(req, res) {
+    const { source, target, appkey } = req.body;
+    console.log(source, target, appkey);
+    return res.json({ state: 200, msg: null, data: null });
+  }
 }
 
 module.exports = ChatController;
