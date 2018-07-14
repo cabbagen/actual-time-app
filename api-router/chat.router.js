@@ -8,7 +8,6 @@ const routerMap = {
     ['/getContactInfo']: chatController.getContactInfo.bind(chatController),
   },
   post: {
-    ['/createChatChannel']: chatController.createChatChannel.bind(chatController),
   },
 };
 

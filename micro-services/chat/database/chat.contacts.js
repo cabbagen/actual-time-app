@@ -1,4 +1,4 @@
-const ContactModel = require('../../model/contacts.model');
+const ContactModel = require('../../../model/contacts.model');
 
 class ContactService {
 

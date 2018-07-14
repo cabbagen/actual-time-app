@@ -1,4 +1,4 @@
-const MessageModel = require('../../model/messages.model');
+const MessageModel = require('../../../model/messages.model');
 const { ChannelService } = require('./chat.channels');
 
 class MessageService {

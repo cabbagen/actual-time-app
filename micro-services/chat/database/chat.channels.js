@@ -1,4 +1,4 @@
-const ChannelModel = require('../../model/channels.model');
+const ChannelModel = require('../../../model/channels.model');
 
 class ChannelService {
 

@@ -11,18 +11,9 @@
  *   to:       消息接收人;  接收人的 objectId
  */
 
-const { ContactService } = require('./chat.contacts');
-const { MessageService } = require('./chat.messages');
-const { ChannelService } = require('./chat.channels');
+const { EventCenter } = require('./events/chat.event');
+const { registEventHandle } = require('./handles/handle.events');
 
-const eventCenter = {
-  connection: 'connection',
-  online: 'on_line',
-  disconnecting: 'disconnecting',
-  private: 'chat_private',
-};
-
-// it will be a Singleton
 let chatApplication = null;
 
 class SocketChatService {
@@ -38,24 +29,16 @@ class SocketChatService {
   }
 
   registerChatService() {
-    this.chat = this.io.of(SocketChatService.socketPath).on(eventCenter.connection, (socket) => {
-      // 连接 websocket IM 用户上线
-      socket.on(eventCenter.online, (appkey, id) => {
-        ContactService.loginIMService(appkey, id, socket.client.id);
-      });
-
-      // 断开 websocket 连接
-      socket.on(eventCenter.disconnecting, () => {
-        ContactService.logoutIMService(socket.client.id);
-      });
+    this.chat = this.io.of(SocketChatService.socketPath).on(EventCenter.im_connection, (socket) => {
+      registEventHandle(socket);
 
       // 处理单聊消息
-      socket.on(eventCenter.private, async (appkey, data) => {
-        const message = await this.handlePrivateMessage(appkey,data);
-        const fullMessageInfo = await MessageService.getMessageInfoByMessageId(message._id);
+      // socket.on(eventCenter.private, async (appkey, data) => {
+      //   const message = await this.handlePrivateMessage(appkey,data);
+      //   const fullMessageInfo = await MessageService.getMessageInfoByMessageId(message._id);
 
-        this.broadcastMessage(socket, fullMessageInfo);
-      });
+      //   this.broadcastMessage(socket, fullMessageInfo);
+      // });
     });
   }
 
