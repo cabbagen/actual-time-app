@@ -12,7 +12,7 @@ class ChannelService {
 
     const chatChannelInfo = await ChannelModel.getChatChannel(sourceId, targetId);
 
-    if (!channelInfo) {
+    if (!chatChannelInfo) {
       return await ChannelModel.createChatChannel(channelInfo);
     }
 
