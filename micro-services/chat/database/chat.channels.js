@@ -29,6 +29,14 @@ class ChannelService {
   async getChannelInfoBySourceIdAndTargetId(sourceId, targetId) {
     return await ChannelModel.getChatChannel(sourceId, targetId);
   }
+
+  async getContactRelatedChannelIds(concactId) {
+    const channels = await ChannelModel.getRelatedChannels(concactId, { channel_id: 1, _id: 0 });
+
+    return channels.map(function(channel) {
+      return channel.channel_id;
+    });
+  }
 }
 
 module.exports = {

@@ -3,6 +3,7 @@ const { ChannelService } = require('./chat.channels');
 
 class MessageService {
 
+  // messageType   1 => 群组  2 => 单人
   async saveIMMessage(appkey, messageState, messageType, message) {
     const channelInfo = await ChannelService.getChannelInfoBySourceIdAndTargetId(message.source, message.target);
     const messageInfo = {

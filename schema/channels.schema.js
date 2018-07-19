@@ -25,12 +25,20 @@ channelsSchema.statics.updateChatChannel = function(condition, params) {
   });
 }
 
-// 获取聊天信道
+// 获取某一个聊天信道
 channelsSchema.statics.getChatChannel = function(source, target) {
   const channel_first_id = `${source}@@${target}`;
   const channel_seconed_id = `${target}@@${source}`;
 
   return this.findOne({ channel_id: { $in: [channel_first_id, channel_seconed_id] } }).exec()
+    .catch(function(error) {
+      console.log(error);
+    });
+}
+
+// 获取联系人相关的所有聊天信道
+channelsSchema.statics.getRelatedChannels = function(contactId, selectedFieldParams) {
+  return this.find({ channel_id: { $regex: contactId } }, selectedFieldParams).exec()
     .catch(function(error) {
       console.log(error);
     });
