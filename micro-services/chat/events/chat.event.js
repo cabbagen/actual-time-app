@@ -4,6 +4,7 @@ const EventCenter = {
   im_disconnecting: 'disconnecting',
   im_notice: 'im_notice',
   im_signal_chat: 'im_signal_chat',
+  im_create_channel: 'im_create_channel',
 };
 
 const NoticeEventCenter = {

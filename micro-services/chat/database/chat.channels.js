@@ -26,6 +26,15 @@ class ChannelService {
     return await ChannelModel.updateChatChannel(condition, updatedDoc);
   }
 
+  async resetIMChannel(sourceId, targetId) {
+    const chatChannelInfo = await ChannelModel.getChatChannel(sourceId, targetId);
+    const updatedDoc = {
+      channel_state: 1,
+      channel_members: chatChannelInfo.channel_members.length === 2 ? [targetId] : [],
+    };
+    return await ChannelModel.updateChatChannel({ _id: chatChannelInfo._id }, updatedDoc);
+  }
+
   async getChannelInfoBySourceIdAndTargetId(sourceId, targetId) {
     return await ChannelModel.getChatChannel(sourceId, targetId);
   }
