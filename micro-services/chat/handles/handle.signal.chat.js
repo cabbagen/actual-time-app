@@ -6,10 +6,11 @@ const { EventCenter } = require('../events/chat.event');
 exports.handleIMSignalChat = async function(socket, data) {
   const targetContactStateInfo = await ContactService.getContactIsOnLine(data.appkey, data.target);
   const channelInfo = await ChannelService.getChannelInfoBySourceIdAndTargetId(data.source, data.target);
-  const messageInfo = await MessageService.saveIMMessage(data.appkey, targetContactStateInfo.state, 2, data);
+  const savedMessageInfo = await MessageService.saveIMMessage(data.appkey, targetContactStateInfo.state, 2, data);
+  const completedMessageInfo = await MessageService.getMessageInfoByMessageId(savedMessageInfo._id);
 
   socket
-    .emit(EventCenter.im_signal_chat, messageInfo)
+    .emit(EventCenter.im_signal_chat, completedMessageInfo)
     .to(channelInfo.channel_id)
-    .emit(EventCenter.im_signal_chat, messageInfo);
+    .emit(EventCenter.im_signal_chat, completedMessageInfo);
 }
