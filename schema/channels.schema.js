@@ -36,6 +36,14 @@ channelsSchema.statics.getChatChannel = function(source, target) {
     });
 }
 
+// 获取用户当前使用的聊天通道
+channelsSchema.statics.getCurrentChatChannel = function(source) {
+  return this.findOne({ channel_id: { $regex: source }, channel_state: 1 }).exec()
+    .catch(function(error) {
+      console.log(error);
+    });
+}
+
 // 获取联系人相关的所有聊天信道
 channelsSchema.statics.getRelatedChannels = function(contactId, selectedFieldParams) {
   return this.find({ channel_id: { $regex: contactId } }, selectedFieldParams).exec()

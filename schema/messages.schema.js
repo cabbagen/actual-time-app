@@ -23,8 +23,8 @@ messagesSchema.statics.addMessage = function(params) {
   });
 }
 
-messagesSchema.statics.getMessage = function(params) {
-  return this.findOne(params).populate('message_source').populate('message_target').exec()
+messagesSchema.statics.getMessages = function(params) {
+  return this.find(params).populate('message_source').populate('message_target').exec()
     .catch(function(error) {
       console.log(error);
     });

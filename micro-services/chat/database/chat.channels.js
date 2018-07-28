@@ -1,7 +1,6 @@
 const ChannelModel = require('../../../model/channels.model');
 
 class ChannelService {
-
   async createIMChannel(appkey, targetState, sourceId, targetId) {
     const channelInfo = {
       appkey: appkey,
@@ -27,11 +26,17 @@ class ChannelService {
   }
 
   async resetIMChannel(sourceId, targetId) {
-    const chatChannelInfo = await ChannelModel.getChatChannel(sourceId, targetId);
+    const chatChannelInfo = await ChannelModel.getCurrentChatChannel(sourceId);
+
+    if (!chatChannelInfo) {
+      return;
+    }
+
     const updatedDoc = {
-      channel_state: 1,
+      channel_state: 0,
       channel_members: chatChannelInfo.channel_members.length === 2 ? [targetId] : [],
     };
+
     return await ChannelModel.updateChatChannel({ _id: chatChannelInfo._id }, updatedDoc);
   }
 

@@ -22,11 +22,18 @@ class MessageService {
 
   async getMessageInfoByMessageId(messageId) {
     const params = { _id: messageId };
-    return await MessageModel.getMessage(params);
+    return await MessageModel.getMessages(params)[0];
   }
 
-  async getUnreadMessages(socketId) {
-    
+  async getSignalUnreadMessages(sourceId, targetId) {
+    const condition = {
+      $or: [
+        { message_channel: `${sourceId}@@${targetId}` },
+        { message_channel: `${targetId}@@${sourceId}` }
+      ],
+      message_state: 0,
+    };
+    return await MessageModel.getMessages(condition);
   }
 }
 
