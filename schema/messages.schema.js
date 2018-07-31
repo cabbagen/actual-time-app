@@ -30,6 +30,13 @@ messagesSchema.statics.getMessages = function(params) {
     });
 }
 
+messagesSchema.statics.updateMessages = function(condition, params) {
+  return this.update(condition, params, { multi: true }).exec()
+    .catch(function(error) {
+      console.log(error);
+    });
+}
+
 messagesSchema.statics.getRecentContactInfos = function(sourceId) {
   return this.aggregate([
     {

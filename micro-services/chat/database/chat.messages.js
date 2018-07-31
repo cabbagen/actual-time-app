@@ -1,8 +1,8 @@
+const mongoose = require('mongoose');
 const MessageModel = require('../../../model/messages.model');
 const { ChannelService } = require('./chat.channels');
 
 class MessageService {
-
   // messageType   1 => 群组  2 => 单人
   async saveIMMessage(appkey, messageState, messageType, message) {
     const channelInfo = await ChannelService.getChannelInfoBySourceIdAndTargetId(message.source, message.target);
@@ -21,8 +21,10 @@ class MessageService {
   }
 
   async getMessageInfoByMessageId(messageId) {
-    const params = { _id: messageId };
-    return await MessageModel.getMessages(params)[0];
+    const params = { _id: mongoose.Types.ObjectId(messageId) };
+    const messages = await MessageModel.getMessages(params);
+
+    return messages[0];
   }
 
   async getSignalUnreadMessages(sourceId, targetId) {
@@ -34,6 +36,12 @@ class MessageService {
       message_state: 0,
     };
     return await MessageModel.getMessages(condition);
+  }
+
+  async readMessages(channelId) {
+    const condition = { message_channel: channelId };
+    const params = { message_state: 1 };
+    return await MessageModel.updateMessages(condition, params);
   }
 }
 

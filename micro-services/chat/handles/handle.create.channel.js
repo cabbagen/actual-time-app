@@ -17,5 +17,6 @@ exports.handleCreateChannel = async function(socket, data) {
   const channelInfo = await ChannelService.getChannelInfoBySourceIdAndTargetId(sourceId, targetId);
   const sendData = { channelId: channelInfo.channel_id, eventType: EventCenter.im_create_channel, data: unReadMessages };
 
+  MessageService.readMessages(channelInfo.channel_id);
   socket.emit(EventCenter.im_create_channel, sendData);
 }
