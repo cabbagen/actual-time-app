@@ -1,7 +1,6 @@
 const ContactModel = require('../../../model/contacts.model');
 
 class ContactService {
-
   async loginIMService(appkey, id, socketId) {
     const params = { appkey, id };
     const updatedParams = { state: 1, socket_id: socketId };
