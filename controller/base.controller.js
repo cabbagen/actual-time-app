@@ -1,8 +1,5 @@
 const multiparty = require('multiparty');
 const path = require('path');
-const fs = require('fs');
-
-const usersModel = require('../model/users.model.js');
 
 class BaseController {
   
@@ -15,23 +12,25 @@ class BaseController {
     console.log('this is file upload handle');
   }
 
-  uploadImg(req, res, callback) {
+  uploadImgFile(req, res) {
     const uploadImgDir = path.resolve(this.storageDir, 'images');
     const form = new multiparty.Form({ uploadDir: uploadImgDir });
 
-    form.parse(req, (err, fields, files) => {
-      if (err) callback(err, null);
-      const imgUploadPaths = files.imgFile.map(imgFile => imgFile.path.replace(this.replaceBasePath, '/static'));
-
-      callback(null, imgUploadPaths);
+    form.parse(req, (error, fields, files) => {
+      if (error) {
+        return res.json({ status: 500, data: null, msg: error.message });
+      }
+      return res.json({
+        status: 200,
+        msg: '图片上传成功',
+        data: files.imgFile.map(imgFile => imgFile.path.replace(this.replaceBasePath, '/static')),
+      });
     });
 
-    form.on('error', (err) => {
-      callback(err, null);
+    form.on('error', (error) => {
+      return res.json({ status: 500, data: null, msg: error.message });
     });
   }
-
-
 }
 
 module.exports = BaseController;

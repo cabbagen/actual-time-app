@@ -38,6 +38,11 @@ class ChatController extends BaseController {
 
     return res.json({ state: 200, msg: null, data: result });
   }
+
+  // 查询 IM 用户列表
+
+  // 查询 IM 群众列表
+  
 }
 
 module.exports = ChatController;

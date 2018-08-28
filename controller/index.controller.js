@@ -1,7 +1,6 @@
 const BaseController = require('./base.controller.js');
 const captchaProvider = require('../providers/captcha.provider.js');
 const cryptoProvider = require('../providers/crypto.provider.js');
-const utilsProvider = require('../providers/utils.provider.js');
 const UsersModel = require('../model/users.model.js');
 
 class IndexController extends BaseController {
