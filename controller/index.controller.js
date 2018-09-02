@@ -1,7 +1,7 @@
 const BaseController = require('./base.controller.js');
 const captchaProvider = require('../providers/captcha.provider.js');
 const cryptoProvider = require('../providers/crypto.provider.js');
-const UsersModel = require('../model/users.model.js');
+const UsersModel = require('../model/users.model.js').init();
 
 class IndexController extends BaseController {
 
@@ -30,7 +30,7 @@ class IndexController extends BaseController {
     res.status(200).send(captcha.data);
   }
 
-  async login(req, res, next) {
+  async login(req, res) {
     const { username, password, validateImageText } = req.body;
     const sessionCaptcha = req.session.captcha;
     const isPassCheckValidateImageText = this.checkValidateImageText(sessionCaptcha, validateImageText);
@@ -41,7 +41,7 @@ class IndexController extends BaseController {
 
     const passwordHash = cryptoProvider.getSaledHashSync(password);
 
-    const userInfo = await UsersModel.findOne({ username }).exec();
+    const userInfo = await UsersModel.getUserInfoByUserName(username);
 
     if (!userInfo) {
       return  res.json({ status: 500, msg: '数据库查询失败!', data: null, type: 'username-error' });

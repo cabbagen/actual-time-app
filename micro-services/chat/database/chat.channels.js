@@ -1,6 +1,7 @@
-const ChannelModel = require('../../../model/channels.model');
+const ChannelModel = require('../../../model/channels.model').init();
 
 class ChannelService {
+
   async createIMChannel(appkey, targetState, sourceId, targetId) {
     const channelInfo = {
       appkey: appkey,
@@ -9,10 +10,10 @@ class ChannelService {
       channel_members: targetState === 1 ? [sourceId, targetId] : [sourceId],
     };
 
-    const chatChannelInfo = await ChannelModel.getChatChannel(sourceId, targetId);
+    const chatChannelInfo = await ChannelModel.getChannelInfo(sourceId, targetId);
 
     if (!chatChannelInfo) {
-      return await ChannelModel.createChatChannel(channelInfo);
+      return await ChannelModel.createChannel(channelInfo);
     }
 
     const condition = { channel_id: channelInfo.channel_id };
@@ -22,11 +23,11 @@ class ChannelService {
       channel_members: targetState === 1 ? [sourceId, targetId] : [sourceId],
     };
 
-    return await ChannelModel.updateChatChannel(condition, updatedDoc);
+    ChannelModel.updateChannel(condition, updatedDoc);
   }
 
   async resetIMChannel(sourceId, targetId) {
-    const chatChannelInfo = await ChannelModel.getCurrentChatChannel(sourceId);
+    const chatChannelInfo = await ChannelModel.getCurrentChannel(sourceId);
 
     if (!chatChannelInfo) {
       return;
@@ -37,19 +38,21 @@ class ChannelService {
       channel_members: chatChannelInfo.channel_members.length === 2 ? [targetId] : [],
     };
 
-    return await ChannelModel.updateChatChannel({ _id: chatChannelInfo._id }, updatedDoc);
+    ChannelModel.updateChannel({ _id: chatChannelInfo._id }, updatedDoc);
   }
 
   async getChannelInfoBySourceIdAndTargetId(sourceId, targetId) {
-    return await ChannelModel.getChatChannel(sourceId, targetId);
+    return await ChannelModel.getChannelInfo(sourceId, targetId);
   }
 
   async getContactRelatedChannelIds(concactId) {
     const channels = await ChannelModel.getRelatedChannels(concactId, { channel_id: 1, _id: 0 });
 
-    return channels.map(function(channel) {
-      return channel.channel_id;
-    });
+    if (!channels) {
+      return null;
+    }
+
+    return channels.map((channel) => channel.channel_id);
   }
 }
 

@@ -1,7 +1,6 @@
-const BaseController = require('./base.controller.js');
-const ContactsModel = require('../model/contacts.model.js');
+const BaseController = require('./base.controller');
+const ContactsModel = require('../model/contacts.model').init();
 const MessagesModel = require('../model/messages.model.js');
-const utils = require('../providers/utils.provider.js');
 
 class ChatController extends BaseController {
 
@@ -27,14 +26,15 @@ class ChatController extends BaseController {
 
     if (typeof id === 'undefined') return res.json(this.paramsError);
 
-    const contactInfo = await ContactsModel.getContactInfo({ id, appkey }, {}, false);
-    const recentContactInfos = await MessagesModel.getRecentContactInfos(id);
+    const contactResult = await ContactsModel.getContactRelatedInfo({ id, appkey }, {}, false);
+    // const recentContactInfos = await MessagesModel.getRecentContactInfos(id);
+    const recentContactInfos = [];
 
-    if (!contactInfo || !recentContactInfos) {
+    if (contactResult.error || !recentContactInfos) {
       return res.json({ state: 203, msg: '获取信息失败', data: null });
     }
 
-    const result = { ...contactInfo._doc, recentContacts: recentContactInfos };
+    const result = { ...contactResult.result._doc, recentContacts: recentContactInfos };
 
     return res.json({ state: 200, msg: null, data: result });
   }

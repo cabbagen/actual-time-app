@@ -1,22 +1,22 @@
-const ContactModel = require('../../../model/contacts.model');
+const ContactModel = require('../../../model/contacts.model').init();
 
 class ContactService {
   async loginIMService(appkey, id, socketId) {
     const params = { appkey, id };
-    const updatedParams = { state: 1, socket_id: socketId };
+    const updatedInfo = { state: 1, socket_id: socketId };
 
-    return await ContactModel.updateContaceInfo(params, updatedParams);
+    ContactModel.updateContaceInfo(params, updatedInfo);
   }
 
   async logoutIMService(socketId) {
-    return await ContactModel.setContactStatusBySocketId(socketId, 0);
+    ContactModel.setContactStatusBySocketId(socketId, 0);
   }
 
   async getContactIsOnLine(appkey, id) {
     const condition = { appkey, id };
-    const selectedFieldParams = { state: 1 };
+    const selected = { state: 1 };
 
-    return await ContactModel.getContactInfo(condition, selectedFieldParams, true);
+    return await ContactModel.getContactRelatedInfo(condition, selected, true);
   }
 }
 

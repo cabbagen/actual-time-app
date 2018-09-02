@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const MessageModel = require('../../../model/messages.model');
+const MessageModel = require('../../../model/messages.model').init();
 const { ChannelService } = require('./chat.channels');
 
 class MessageService {
@@ -17,7 +17,9 @@ class MessageService {
       appkey: appkey,
     };
 
-    return await MessageModel.addMessage(messageInfo);
+    const message = await MessageModel.addMessage(messageInfo);
+
+    return message.result;
   }
 
   async getMessageInfoByMessageId(messageId) {
@@ -35,13 +37,15 @@ class MessageService {
       ],
       message_state: 0,
     };
+
     return await MessageModel.getMessages(condition);
   }
 
   async readMessages(channelId) {
     const condition = { message_channel: channelId };
     const params = { message_state: 1 };
-    return await MessageModel.updateMessages(condition, params);
+
+    MessageModel.updateMessages(condition, params);
   }
 }
 

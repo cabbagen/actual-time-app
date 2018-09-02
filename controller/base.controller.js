@@ -2,14 +2,14 @@ const multiparty = require('multiparty');
 const path = require('path');
 
 class BaseController {
+
+  static init() {
+    return new BaseController();
+  }
   
   constructor() {
     this.storageDir = path.resolve(__dirname, '../storage');
     this.replaceBasePath = path.resolve(__dirname, '../');
-  }
-
-  uploadFile() {
-    console.log('this is file upload handle');
   }
 
   uploadImgFile(req, res) {

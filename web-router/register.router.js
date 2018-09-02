@@ -1,9 +1,10 @@
-const registerController = require('../controller/register.controller.js').init();
-const { registeRouter } = require('../kernel/core.js');
+const registerController = require('../controller/register.controller').init();
+const baseController = require('../controller/base.controller').init();
+const { registeRouter } = require('../kernel/core');
 
 const routerMap = {
   post: {
-    ['/uploadImg']: registerController.uploadImg.bind(registerController),
+    ['/uploadImg']: baseController.uploadImgFile.bind(baseController),
     ['/registeUser']: registerController.registeUser.bind(registerController),
   }
 };
