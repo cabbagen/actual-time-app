@@ -27,7 +27,7 @@ class ContactsModel extends BaseModel {
     return result;
   }
 
-  async updateContaceInfo(condition, updatedInfo) {
+  async updateContactInfo(condition, updatedInfo) {
     if (!condition.appkey || !condition.id) {
       return { result: null, error: this.paramsError };
     }

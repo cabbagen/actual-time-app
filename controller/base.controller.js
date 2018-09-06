@@ -31,6 +31,25 @@ class BaseController {
       return res.json({ status: 500, data: null, msg: error.message });
     });
   }
+
+  returnSuccess(res, data) {
+    res.json({ state: 200, msg: null, data });
+  }
+
+  returnAppKeyError(res, msg) {
+    const errorMsg = msg || '请传入 appkey';
+    res.json({ state: 201, msg: errorMsg, data: null });
+  }
+
+  returnParamsError(res, msg) {
+    const errorMsg = msg || '请求参数错误';
+    res.json({ state: 202, msg: errorMsg, data: null });
+  }
+
+  returnDatabaseError(res, msg) {
+    const errorMsg = msg || '数据库操作失败';
+    res.json({ state: 203, msg: errorMsg, data: null });
+  }
 }
 
 module.exports = BaseController;

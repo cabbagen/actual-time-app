@@ -1,6 +1,7 @@
 const BaseController = require('./base.controller');
 const ContactsModel = require('../model/contacts.model').init();
-const MessagesModel = require('../model/messages.model.js');
+const MessagesModel = require('../model/messages.model').init();
+const Config = require('../config/config');
 
 class ChatController extends BaseController {
 
@@ -10,11 +11,9 @@ class ChatController extends BaseController {
 
   constructor(props) {
     super(props);
-    this.appkeyError = { state: 201, msg: '请传入 appkey', data: null };
-    this.paramsError = { state: 202, msg: '传入的参数有误', data: null };
   }
 
-  renderChat(req, res, next) {
+  renderChat(req, res) {
     res.render('chat/chat');
   }
 
@@ -22,26 +21,50 @@ class ChatController extends BaseController {
   async getContactInfo(req, res) {
     const { appkey, id } = req.query;
 
-    if (typeof appkey === 'undefined') return res.json(this.appkeyError);
-
-    if (typeof id === 'undefined') return res.json(this.paramsError);
-
-    const contactResult = await ContactsModel.getContactRelatedInfo({ id, appkey }, {}, false);
-    // const recentContactInfos = await MessagesModel.getRecentContactInfos(id);
-    const recentContactInfos = [];
-
-    if (contactResult.error || !recentContactInfos) {
-      return res.json({ state: 203, msg: '获取信息失败', data: null });
+    if (typeof appkey === 'undefined') {
+      return this.returnAppKeyError(res);
     }
 
-    const result = { ...contactResult.result._doc, recentContacts: recentContactInfos };
+    if (typeof id === 'undefined') {
+      return this.returnParamsError(res, 'id 不能为空');
+    }
 
-    return res.json({ state: 200, msg: null, data: result });
+    const contactInfo = await ContactsModel.getContactRelatedInfo({ id, appkey }, {}, false);
+    const recentContactInfos = await MessagesModel.getRecentContactMessages(id);
+
+    if (!contactInfo || !recentContactInfos) {
+      return this.returnDatabaseError(res, '数据库获取信息失败');
+    }
+
+    const result = { ...contactInfo._doc, recentContacts: recentContactInfos };
+
+    return this.returnSuccess(res, result);
   }
 
-  // 查询 IM 用户列表
+  // 保存用户信息
+  async saveContactInfo(req, res) {
+    const { id, appkey, nickname, avator } = req.body;
 
-  // 查询 IM 群众列表
+    if (typeof appkey === 'undefined' || appkey === '') {
+      return this.returnAppKeyError(res);
+    }
+    if (typeof id === 'undefined' || id === '') {
+      return this.returnParamsError(res, 'id 不能为空');
+    }
+    if (nickname === '' || avator === '') {
+      return this.returnParamsError(res, '昵称和头像均不能为空');
+    }
+
+    const condition = { appkey, id };
+    const updatedInfo = Object.assign({}, req.body, { avator: Config.webDomain + avator });
+    const updateContaceResult = await ContactsModel.updateContactInfo(condition, updatedInfo);
+
+    if (updateContaceResult.error) {
+      return this.returnDatabaseError(res, '数据库操作失败');
+    }
+
+    return this.returnSuccess(res, updateContaceResult.result);
+  }
   
 }
 

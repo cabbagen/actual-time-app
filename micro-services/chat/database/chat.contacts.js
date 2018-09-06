@@ -5,7 +5,7 @@ class ContactService {
     const params = { appkey, id };
     const updatedInfo = { state: 1, socket_id: socketId };
 
-    ContactModel.updateContaceInfo(params, updatedInfo);
+    ContactModel.updateContactInfo(params, updatedInfo);
   }
 
   async logoutIMService(socketId) {
