@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
+const moment = require('moment');
 const BaseModel = require('./base.model');
+const utils = require('../providers/utils.provider');
 const messagesSchema = require('../schema/messages.schema');
 
 class MessagesModel extends BaseModel {
@@ -14,25 +16,35 @@ class MessagesModel extends BaseModel {
   }
 
   async addMessage(message) {
-    return await this.messagesModel.create(message).then(this.resolve).catch(this.reject);
+    return this.messagesModel.create(message).then(this.resolve).catch(this.reject);
   }
 
   async getMessages(condition) {
-    return await this.messagesModel.find(condition)
+    return this.messagesModel.find(condition)
       .populate('message_source')
       .populate('message_target')
-      .exec()
-  }
-
-  async updateMessages(condition, updatedInfo) {
-    return await this.messagesModel.update(condition, updatedInfo, { multi: true })
       .exec()
       .then(this.resolve)
       .catch(this.reject);
   }
 
-  async getRecentContactMessages(contactId) {
-    return await this.messagesModel.aggregate([
+  async updateMessages(condition, updatedInfo) {
+    return this.messagesModel.update(condition, updatedInfo, { multi: true })
+      .exec()
+      .then(this.resolve)
+      .catch(this.reject);
+  }
+
+  /**
+   * 获取 IM 用户的未读消息
+   * @param {String} appkey 
+   * @param {String} contactId 
+   */
+  async getContactUnReadMessages(appkey, contactId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(contactId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
+    return this.messagesModel.aggregate([
       {
         $match: {
           $or: [
@@ -63,7 +75,31 @@ class MessagesModel extends BaseModel {
         $lookup: { from: 'groups', localField: 'last_target_group', foreignField: '_id', as: 'last_target_group' }
       }
     ])
-    .exec();
+    .exec()
+    .then(this.resolve)
+    .catch(this.reject);
+  }
+
+  /**
+   * 获取群组消息
+   * @param {String} appkey 
+   * @param {String} groupId
+   * @param {Object} condition 
+   */
+  async getGroupMessages(appkey, groupId, condition) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(groupId) !== 'String' || utils.checkType(condition) !== 'Object') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const searchCondition = { appkey, message_channel: groupId };
+
+    if (condition.startTime && condition.endTime) {
+      searchCondition.created_at = {
+        $gt: new Date(moment(condition.startTime).toISOString()),
+        $lt: new Date(moment(condition.endTime).toISOString()),
+      };
+    }
+    return this.messagesModel.find(searchCondition).skip(condition.pageSize * condition.pageIndex).limit(condition.pageSize).then(this.resolve).catch(this.reject);
   }
 }
 

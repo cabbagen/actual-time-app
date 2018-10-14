@@ -1,6 +1,8 @@
 const BaseController = require('./base.controller');
 const ContactsModel = require('../model/contacts.model').init();
 const MessagesModel = require('../model/messages.model').init();
+const GroupsModel = require('../model/groups.model').init();
+
 const Config = require('../config/config');
 
 class ChatController extends BaseController {
@@ -65,7 +67,41 @@ class ChatController extends BaseController {
 
     return this.returnSuccess(res, updateContaceResult.result);
   }
-  
+
+  // 查询好友列表
+  async getContactInfos(req, res) {
+    const params = req.body;
+
+    if (typeof params.appkey === 'undefined') {
+      return this.returnAppKeyError(res);
+    }
+
+    const condition = params.search.trim() !== ''
+      ? { [params.type]: params.search, appkey: params.appkey }
+      : { appkey: params.appkey };
+
+    const result = await ContactsModel.findAllByPagination(condition, params.pageIndex, params.pageSize);
+
+    this.returnSuccess(res, result);
+  }
+
+  // 查询群组列表
+  async getGroupInfos(req, res) {
+    const params = req.body;
+
+    if (typeof params.appkey === 'undefined') {
+      return this.returnAppKeyError(res);
+    }
+
+    const condition = params.search.trim() !== ''
+      ? { [params.type]: params.search, appkey: params.appkey }
+      : { appkey: params.appkey };
+
+    const result = await GroupsModel.findAllByPagination(condition, params.pageIndex, params.pageSize);
+
+    this.returnSuccess(res, result);
+  }
+
 }
 
 module.exports = ChatController;
