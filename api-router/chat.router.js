@@ -1,19 +1,10 @@
-const chatController = require('../controller/chat.controller.js').init();
-const authMiddleware = require('../middleware/auth.middleware.js');
 const { registeRouter } = require('../kernel/core.js');
 const ContactsApiController = require('../api/chat/contacts.api').init();
 const GroupsApiController = require('../api/chat/groups.api').init();
+const MessagesApiController = require('../api/chat/messages.api').init();
 
 const apiRouterMap = {
-  get: {
-    ['/chatDemo']: [ authMiddleware(), chatController.renderChat.bind(chatController) ],
-    ['/getContactInfo']: chatController.getContactInfo.bind(chatController),
-  },
   post: {
-    ['/saveContactInfo']: chatController.saveContactInfo.bind(chatController),
-    ['/getContactInfos']: chatController.getContactInfos.bind(chatController),
-
-
     // - contacts
     ['/api/createContactInfos']: ContactsApiController.createContactInfos.bind(ContactsApiController),
     ['/api/removeContactInfos']: ContactsApiController.removeContactInfos.bind(ContactsApiController),
@@ -21,6 +12,7 @@ const apiRouterMap = {
     ['/api/getContactRelatedInfo']: ContactsApiController.getContactRelatedInfo.bind(ContactsApiController),
     ['/api/getContactInfos']: ContactsApiController.getContactInfos.bind(ContactsApiController),
     ['/api/getContactUnReadMessages']: ContactsApiController.getContactUnReadMessages.bind(ContactsApiController),
+    ['/api/getContactMessages']: ContactsApiController.getContactMessages.bind(ContactsApiController),
 
     // - groups
     ['/api/createGroupInfos']: GroupsApiController.createGroupInfos.bind(GroupsApiController),
@@ -32,7 +24,10 @@ const apiRouterMap = {
     ['/api/getGroupMessages']: GroupsApiController.getGroupMessages.bind(GroupsApiController),
 
     // - messages
-
+    ['/api/addMessageInfos']: MessagesApiController.addMessageInfos.bind(MessagesApiController),
+    ['/api/getMessageInfo']: MessagesApiController.getMessageInfo.bind(MessagesApiController),
+    ['/api/removeMessages']: MessagesApiController.removeMessages.bind(MessagesApiController),
+    ['/api/updateMessageInfo']: MessagesApiController.updateMessageInfo.bind(MessagesApiController),
   },
 };
 

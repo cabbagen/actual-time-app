@@ -51,7 +51,7 @@ class ContactsApiController extends BaseApiController {
     return response.json(this.exceptions['1000']);
   }
 
-  // 获取联系人详细信息
+  // 获取联系人信息
   async getContactInfo(request, response) {
     const { appkey, contactId } = request.body;
 
@@ -93,11 +93,7 @@ class ContactsApiController extends BaseApiController {
     return response.json(Object.assign({}, this.exceptions['1000'], { data: result.result }));
   }
 
-  /**
-   * 获取联系人列表
-   * @param {Object} request - keyword、pageSize、pageNo、type
-   * @param {Object} response 
-   */
+  // 获取联系人列表
   async getContactInfos(request, response) {
     const { appkey, keyword = '', pageSize = 10, pageIndex = 0, type = 0 } = request.body;
 
@@ -153,6 +149,29 @@ class ContactsApiController extends BaseApiController {
     }
 
     const result = await MessagesModel.getContactUnReadMessages(contactId);
+
+    if (result.error !== null) {
+      return response.json(Object.assign({}, this.exceptions['1003'], { error: result.error }));
+    }
+
+    return response.json(Object.assign({}, this.exceptions['1000'], { data: result.result }));
+  }
+
+  // 查询 IM 用户聊天记录
+  async getContactMessages(request, response) {
+    const { appkey, fromContactId, toContactId } = request.body;
+    const { startTime = null, endTime = null, pageIndex = 0, pageSize = 10 } = request.body;
+
+    if (utils.checkType(appkey) !== 'String') {
+      return response.json(this.exceptions['1001']);
+    }
+
+    if (utils.checkType(fromContactId) !== 'String' || utils.checkType(toContactId) !== 'String') {
+      return request.json(this.exceptions['1002']);
+    }
+
+    const condition = { startTime, endTime, pageIndex, pageSize };
+    const result = await MessageModel.getContactMessages(appkey, fromContactId, toContactId, condition);
 
     if (result.error !== null) {
       return response.json(Object.assign({}, this.exceptions['1003'], { error: result.error }));

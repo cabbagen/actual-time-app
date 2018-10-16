@@ -2,6 +2,7 @@ const BaseController = require('./base.controller');
 const ContactsModel = require('../model/contacts.model').init();
 const MessagesModel = require('../model/messages.model').init();
 const GroupsModel = require('../model/groups.model').init();
+const utils = require('../providers/utils.provider');
 
 const Config = require('../config/config');
 
@@ -11,36 +12,38 @@ class ChatController extends BaseController {
     return new ChatController();
   }
 
-  constructor(props) {
-    super(props);
+  renderChat(request, response) {
+    return response.render('chat/chat');
   }
 
-  renderChat(req, res) {
-    res.render('chat/chat');
-  }
-
-  // 获取联系人信息
-  async getContactInfo(req, res) {
-    const { appkey, id } = req.query;
-
-    if (typeof appkey === 'undefined') {
-      return this.returnAppKeyError(res);
+  async getContactInfo(request, response) {
+    const { appkey, id } = request.query;
+    
+    if (utils.checkType(appkey) !== 'String') {
+      return response.json({ state: 201, msg: 'appkey 错误', data: null });
+    }
+    if (utils.checkType(id) !== 'String') {
+      return response.json({ state: 202, msg: 'id 参数错误', data: null });
     }
 
-    if (typeof id === 'undefined') {
-      return this.returnParamsError(res, 'id 不能为空');
+    const contactInfoResult = await ContactsModel.getContactRelatedInfo(appkey, id);
+    const concactUnreadMessagesResult = await MessagesModel.getContactUnReadMessages(appkey, id);
+
+    if (contactInfoResult.error !== null || concactUnreadMessagesResult.error !== null) {
+      return response.json({
+        state: 203,
+        data: null,
+        msg: contactInfoResult.error || concactUnreadMessagesResult.error,
+      });
     }
 
-    const contactInfo = await ContactsModel.getContactRelatedInfo({ id, appkey }, {}, false);
-    const recentContactInfos = await MessagesModel.getRecentContactMessages(id);
-
-    if (!contactInfo || !recentContactInfos) {
-      return this.returnDatabaseError(res, '数据库获取信息失败');
-    }
-
-    const result = { ...contactInfo._doc, recentContacts: recentContactInfos };
-
-    return this.returnSuccess(res, result);
+    return response.json({
+      state: 200,
+      msg: null,
+      data: Object.assign({}, contactInfoResult.result._doc, {
+        recentContacts: concactUnreadMessagesResult.result,
+      }),
+    })
   }
 
   // 保存用户信息
