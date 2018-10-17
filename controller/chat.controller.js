@@ -16,6 +16,7 @@ class ChatController extends BaseController {
     return response.render('chat/chat');
   }
 
+  // 获取 IM 用户相关信息
   async getContactInfo(request, response) {
     const { appkey, id } = request.query;
     
@@ -37,74 +38,75 @@ class ChatController extends BaseController {
       });
     }
 
-    return response.json({
-      state: 200,
-      msg: null,
-      data: Object.assign({}, contactInfoResult.result._doc, {
-        recentContacts: concactUnreadMessagesResult.result,
-      }),
-    })
+    const data = Object.assign({}, contactInfoResult.result._doc, {
+      recentContacts: concactUnreadMessagesResult.result,
+    });
+
+    return response.json({ state: 200, msg: null, data });
   }
 
-  // 保存用户信息
-  async saveContactInfo(req, res) {
-    const { id, appkey, nickname, avator } = req.body;
+  // 保存 IM 用户信息
+  async saveContactInfo(request, response) {
+    const { id, appkey, nickname, avator } = request.body;
 
-    if (typeof appkey === 'undefined' || appkey === '') {
-      return this.returnAppKeyError(res);
-    }
-    if (typeof id === 'undefined' || id === '') {
-      return this.returnParamsError(res, 'id 不能为空');
-    }
-    if (nickname === '' || avator === '') {
-      return this.returnParamsError(res, '昵称和头像均不能为空');
+    if (utils.checkType(appkey) !== 'String') {
+      return response.json({ state: 201, msg: 'appkey 错误', data: null });
     }
 
-    const condition = { appkey, id };
-    const updatedInfo = Object.assign({}, req.body, { avator: Config.webDomain + avator });
-    const updateContaceResult = await ContactsModel.updateContactInfo(condition, updatedInfo);
-
-    if (updateContaceResult.error) {
-      return this.returnDatabaseError(res, '数据库操作失败');
+    if (utils.checkType(id) !== 'String' || utils.checkType(nickname) !== 'String' || utils.checkType(avator) !== 'String') {
+      return response.json({ state: 202, msg: '参数传递错误', data: null });
     }
 
-    return this.returnSuccess(res, updateContaceResult.result);
+    const document = { nickname, avator: Config.webDomain + avator };
+    const updateContactResult = await ContactsModel.updateContactInfo(appkey, id, document);
+
+    if (updateContactResult.error !== null) {
+      return response.json({ state: 203, msg: updateContactResult.error, data: null });
+    }
+
+    return response.json({ state: 200, msg: null, data: updateContactResult.result });
   }
 
-  // 查询好友列表
-  async getContactInfos(req, res) {
-    const params = req.body;
+  // 查询 IM 用户列表
+  async getContactInfos(request, response) {
+    const { appkey, type = 1, search = '', pageIndex = 0, pageSize = 10 } = request.body;
 
-    if (typeof params.appkey === 'undefined') {
-      return this.returnAppKeyError(res);
+    if (utils.checkType(appkey) !== 'String') {
+      return response.json({ state: 201, msg: 'appkey 错误', data: null });
+    }
+    const queryConditionMap = {
+      1: { $or: [{ nickname: { $regex: search } }, { username: { $regex: search } }] }, // 综合查询
+      2: { nickname: { $regex: search } },  // nickname 查询
+      3: { username: { $regex: search } },  // username 查询
+    };
+
+    const contactsResult = await ContactsModel.getContactInfos(appkey, queryConditionMap[type], pageIndex, pageSize);
+
+    if (contactsResult.error !== null) {
+      return response.json({ state: 203, msg: contactsResult.error, data: null });
     }
 
-    const condition = params.search.trim() !== ''
-      ? { [params.type]: params.search, appkey: params.appkey }
-      : { appkey: params.appkey };
-
-    const result = await ContactsModel.findAllByPagination(condition, params.pageIndex, params.pageSize);
-
-    this.returnSuccess(res, result);
+    return response.json({ state: 200, msg: null, data: contactsResult.result });
   }
 
-  // 查询群组列表
-  async getGroupInfos(req, res) {
-    const params = req.body;
+  // 查询 IM 群组列表
+  async getGroupInfos(request, response) {
+    const { appkey, type = 1, search = '', pageIndex = 0, pageSize = 10 } = request.body;
 
-    if (typeof params.appkey === 'undefined') {
-      return this.returnAppKeyError(res);
+    if (utils.checkType(appkey) !== 'String') {
+      return response.json({ state: 201, msg: 'appkey 错误', data: null });
+    }
+    const queryConditionMap = {
+      1: { group_name: { $regex: search } },  // 根据 group_name 查询
+    };
+    const groupsResult = await GroupsModel.getGroupInfos(appkey, queryConditionMap[type], pageIndex, pageSize);
+
+    if (groupsResult.error !== null) {
+      return response.json({ state: 203, msg: groupsResult.error, data: null });
     }
 
-    const condition = params.search.trim() !== ''
-      ? { [params.type]: params.search, appkey: params.appkey }
-      : { appkey: params.appkey };
-
-    const result = await GroupsModel.findAllByPagination(condition, params.pageIndex, params.pageSize);
-
-    this.returnSuccess(res, result);
+    return response.json({ state: 200, msg: null, data: groupsResult.result });
   }
-
 }
 
 module.exports = ChatController;
