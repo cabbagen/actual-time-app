@@ -135,6 +135,7 @@ class ContactsModel extends BaseModel {
       return resolve(result);
     });
   }
+
 }
 
 module.exports = ContactsModel;

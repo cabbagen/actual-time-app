@@ -17,16 +17,19 @@ class MessageService {
       appkey: appkey,
     };
 
-    const message = await MessageModel.addMessage(messageInfo);
+    const messageResult = await MessageModel.addMessage(messageInfo);
 
-    return message.result;
+    return messageResult.result;
   }
 
   async getMessageInfoByMessageId(messageId) {
     const params = { _id: mongoose.Types.ObjectId(messageId) };
-    const messages = await MessageModel.getMessages(params);
+    const messagesResult = await MessageModel.getMessages(params);
 
-    return messages[0];
+    if (messagesResult.error) {
+      return null;
+    }
+    return messagesResult.result[0];
   }
 
   async getSignalUnreadMessages(sourceId, targetId) {
@@ -38,7 +41,12 @@ class MessageService {
       message_state: 0,
     };
 
-    return await MessageModel.getMessages(condition);
+    const unreadMessagesResult = await MessageModel.getMessages(condition);
+
+    if (unreadMessagesResult.error) {
+      return [];
+    }
+    return unreadMessagesResult.result;
   }
 
   async readMessages(channelId) {

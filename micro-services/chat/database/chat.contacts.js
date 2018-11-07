@@ -12,11 +12,19 @@ class ContactService {
     ContactModel.setContactStatusBySocketId(socketId, 0);
   }
 
-  async getContactIsOnLine(appkey, id) {
-    const condition = { appkey, id };
-    const selected = { state: 1 };
+  /**
+   * 判断 IM 用户当前是否在线
+   * @param {String} appkey - appkey 
+   * @param {String} id IM 用户 id
+   * @return {Boolean} 返回用户是否在线
+   */
+  async getContactIsOnLine(appkey, contactId) {
+    const contactInfoResult = await ContactModel.getContactInfo(appkey, contactId);
 
-    return await ContactModel.getContactRelatedInfo(condition, selected, true);
+    if (contactInfoResult.error) {
+      return false;
+    }
+    return contactInfoResult.result.state === 1;
   }
 }
 
