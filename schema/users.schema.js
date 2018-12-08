@@ -13,6 +13,8 @@ const usersSchema = new Schema({
   gender: Number,
   nickname: String,
   appkey: String,
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 module.exports = usersSchema;

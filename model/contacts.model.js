@@ -102,8 +102,7 @@ class ContactsModel extends BaseModel {
     if (typeof socketId === 'undefined') {
       return { result: null, error: this.paramsError };
     };
-
-    return this.contactsModel.update({ socket_id: socketId }, { state }).exec().then(this.resolve).catch(this.reject);
+    return this.contactsModel.updateOne({ socket_id: socketId }, { state }).exec().then(this.resolve).catch(this.reject);
   }
 
   /**

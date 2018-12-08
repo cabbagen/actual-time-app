@@ -8,8 +8,7 @@ const EventCenter = {
 };
 
 const NoticeEventCenter = {
-  notice_create_channel: 'notice_create_channel',
-  notice_join_room: 'notice_join_room',
+  im_notice_add_friend: 'im_notice_add_friend',
 };
 
 module.exports = { EventCenter, NoticeEventCenter };

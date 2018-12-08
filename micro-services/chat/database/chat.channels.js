@@ -38,7 +38,7 @@ class ChannelService {
       channel_members: chatChannelInfoResult.result.channel_members.length === 2 ? [targetId] : [],
     };
 
-    ChannelModel.updateChannel({ _id: chatChannelInfo._id }, updatedDoc);
+    ChannelModel.updateChannel({ _id: chatChannelInfoResult.result._id }, updatedDoc);
   }
 
   async getChannelInfoBySourceIdAndTargetId(sourceId, targetId) {

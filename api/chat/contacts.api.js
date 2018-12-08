@@ -148,10 +148,10 @@ class ContactsApiController extends BaseApiController {
       return response.json(this.exceptions['1002']);
     }
 
-    const result = await MessagesModel.getContactUnReadMessages(contactId);
+    const result = await MessagesModel.getContactUnReadMessages(appkey, contactId);
 
     if (result.error !== null) {
-      return response.json(Object.assign({}, this.exceptions['1003'], { error: result.error }));
+      return response.json(Object.assign({}, this.exceptions['1003'], { message: result.error }));
     }
 
     return response.json(Object.assign({}, this.exceptions['1000'], { data: result.result }));

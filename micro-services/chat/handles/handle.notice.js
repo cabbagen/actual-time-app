@@ -1,18 +1,11 @@
-// const { NoticeEventCenter, EventCenter } = require('../events/chat.event');
-// const { ChannelService } = require('../database/chat.channels');
-// const { ContactService } = require('../database/chat.contacts');
+const { NoticeEventCenter } = require('../events/chat.event');
 
-// async function createIMChannel(socket, data) {
-//   const { sourceId, targetId, appkey } = data;
-//   const targetInfo = await ContactService.getContactIsOnLine(appkey, targetId);
+const noticeHandleMap = {
+  [NoticeEventCenter.im_notice_add_friend]: function(sokcet, noticeInfo) {
+    console.log(noticeInfo);
+  }
+};
 
-//   ChannelService.createIMChannel(appkey, targetInfo.state, sourceId, targetId);
-// }
-
-// const noticeHandleMap = {
-//   [NoticeEventCenter.notice_create_channel]: createIMChannel,
-// };
-
-// exports.handleIMNotice = function(socket, noticeInfo) {
-//   noticeHandleMap[noticeInfo.type](socket, noticeInfo.data);
-// }
+exports.handleIMNotice = function(socket, noticeInfo) {
+  noticeHandleMap[noticeInfo.notice_type](socket, noticeInfo);
+}
