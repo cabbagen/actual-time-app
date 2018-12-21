@@ -28,6 +28,12 @@ const apiRouterMap = {
     ['/api/getMessageInfo']: MessagesApiController.getMessageInfo.bind(MessagesApiController),
     ['/api/removeMessages']: MessagesApiController.removeMessages.bind(MessagesApiController),
     ['/api/updateMessageInfo']: MessagesApiController.updateMessageInfo.bind(MessagesApiController),
+
+    // - notice
+    ['/api/addMessageInfos']: MessagesApiController.addMessageInfos.bind(MessagesApiController),
+    ['/api/getMessageInfo']: MessagesApiController.getMessageInfo.bind(MessagesApiController),
+    ['/api/removeMessages']: MessagesApiController.removeMessages.bind(MessagesApiController),
+    ['/api/updateMessageInfo']: MessagesApiController.updateMessageInfo.bind(MessagesApiController),
   },
 };
 
