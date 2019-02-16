@@ -9,6 +9,10 @@ const EventCenter = {
 
 const NoticeEventCenter = {
   im_notice_add_friend: 'im_notice_add_friend',
+  im_notice_remove_friend: 'im_notice_remove_friend',
+  im_notice_add_group: 'im_notice_add_group',
+  im_notice_remove_group: 'im_notice_remove_group',
+  im_notice_disband_group: 'im_notice_disband_group',
 };
 
 module.exports = { EventCenter, NoticeEventCenter };

@@ -36,7 +36,7 @@ class ContactsModel extends BaseModel {
    * @param {String[]} contactIds 
    */
   async removeContactInfos(appkey, contactIds) {
-    if (utils.checkType(appkey) !== 'String' || utils.checkType(contactInfos) !== 'Array') {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(contactIds) !== 'Array') {
       return { result: null, error: this.paramsError };
     }
 
@@ -135,6 +135,81 @@ class ContactsModel extends BaseModel {
     });
   }
 
+  /**
+   * 添加联系人好友
+   * @param {String} appkey 
+   * @param {String} contactId 
+   * @param {String} friendId 
+   */
+  async createContactFriend(appkey, contactId, friendId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(contactId) !== 'String' || utils.checkType(friendId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const contactResult = await this.contactsModel
+      .update({ appkey, _id: mongoose.Types.ObjectId(contactId) }, { $push: { friends: mongoose.Types.ObjectId(friendId) } })
+      .exec().then(this.resolve).catch(this.reject);
+
+    if (contactResult.error) {
+      return contactResult;
+    }
+
+    const friendResult = await this.contactsModel
+      .update({ appkey, _id: mongoose.Types.ObjectId(friendId) }, { $push: { friends: mongoose.Types.ObjectId(contactId) } })
+      .exec().then(this.resolve).catch(this.reject);
+
+    if (friendResult.error) {
+
+      // 回退上面的操作
+      if (!contactResult.error) {
+        await this.contactsModel
+          .update({ appkey, _id: mongoose.Types.ObjectId(contactId) }, { $pop: { friends: 1 } })
+          .exec().then(this.resolve).catch(this.reject);
+      }
+
+      return friendResult;
+    }
+
+    return { result: 'ok', error: null };
+  }
+
+  /**
+   * 移除联系人好友
+   * @param {String} appkey 
+   * @param {String} contactId 
+   * @param {String} friendId 
+   */
+  async removeContactFriend(appkey, contactId, friendId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(contactId) !== 'String' || utils.checkType(friendId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const contactResult = await this.contactsModel
+      .update({ appkey, _id: mongoose.Types.ObjectId(contactId) }, { $pull: { friends: mongoose.Types.ObjectId(friendId) } })
+      .exec().then(this.resolve).catch(this.reject);
+
+    if (contactResult.error) {
+      return contactResult;
+    }
+
+    const friendResult = await this.contactsModel
+      .update({ appkey, _id: mongoose.Types.ObjectId(friendId) }, { $pull: { friends: mongoose.Types.ObjectId(contactId) } })
+      .exec().then(this.resolve).catch(this.reject);
+
+    if (friendResult.error) {
+
+      // 回退上面的操作
+      if (!contactResult.error) {
+        await this.contactsModel
+          .update({ appkey, _id: mongoose.Types.ObjectId(contactId) }, { $push: { friends: mongoose.Types.ObjectId(friendId) } })
+          .exec().then(this.resolve).catch(this.reject);
+      }
+
+      return friendResult;
+    }
+
+    return { result: 'ok', error: null };
+  }
 }
 
 module.exports = ContactsModel;

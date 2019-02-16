@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const BaseModel = require('./base.model');
 const utils = require('../providers/utils.provider');
 const groupsSchema = require('../schema/groups.schema');
+const contactsSchema = require('../schema/contacts.schema');
 
 class GroupsModel extends BaseModel {
 
@@ -12,6 +13,7 @@ class GroupsModel extends BaseModel {
   constructor(props) {
     super(props);
     this.groupsModel = mongoose.model('groups', groupsSchema);
+    this.contactsModel = mongoose.model('contacts', contactsSchema);
   }
 
   /**
@@ -119,6 +121,80 @@ class GroupsModel extends BaseModel {
     }
 
     return this.groupsModel.findOne({ _id: mongoose.Types.ObjectId(groupId), appkey }, { members: 1 }).populate('members').exec().then(this.resolve).catch(this.reject);
+  }
+
+  /**
+   * 添加小组成员
+   * @param {String} appkey 
+   * @param {String} groupId 
+   * @param {String} memberId 
+   */
+  async createGroupMember(appkey, groupId, memberId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(groupId) !== 'String' || utils.checkType(memberId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const groupsResult = await this.groupsModel
+      .update({ appkey, _id: mongoose.Types.ObjectId(groupId) }, { $push: { members: mongoose.Types.ObjectId(memberId) } })
+      .exec().then(this.resolve).catch(this.reject);
+
+    if (groupsResult.error) {
+      return groupsResult;
+    }
+
+    const contactsResult = await this.contactsModel
+      .update({ appkey, _id: mongoose.Types.ObjectId(memberId) }, { $push: { groups: mongoose.Types.ObjectId(groupId) } })
+      .exec().then(this.resolve).catch(this.reject);
+
+    if (contactsResult.error) {
+      // 回退群组信息
+      if (!groupsResult.error) {
+        await this.groupsModel
+          .update({ appkey, _id: mongoose.Types.ObjectId(memberId) }, { $pop: { groups: 1 } })
+          .exec().then(this.resolve).catch(this.reject);
+      }
+
+      return contactsResult;
+    }
+
+    return { result: 'ok', error: null };
+  }
+
+  /**
+   * 删除小组成员
+   * @param {String} appkey 
+   * @param {String} groupId 
+   * @param {String} memberId 
+   */
+  async removeGroupMember(appkey, groupId, memberId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(groupId) !== 'String' || utils.checkType(memberId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const groupsResult = await this.groupsModel
+      .update({ appkey, _id: mongoose.Types.ObjectId(groupId) }, { $pull: { members: mongoose.Types.ObjectId(memberId) } })
+      .exec().then(this.resolve).catch(this.reject);
+
+    if (groupsResult.error) {
+      return groupsResult;
+    }
+
+    const contactsResult = await this.contactsModel
+      .update({ appkey, _id: mongoose.Types.ObjectId(memberId) }, { $pull: { groups: mongoose.Types.ObjectId(groupId) } })
+      .exec().then(this.resolve).catch(this.reject);
+
+    if (contactsResult.error) {
+      // 回退群组信息
+      if (!groupsResult.error) {
+        await this.groupsModel
+          .update({ appkey, _id: mongoose.Types.ObjectId(memberId) }, { $push: { members: mongoose.Types.ObjectId(memberId) }})
+          .exec().then(this.resolve).catch(this.reject);
+      }
+
+      return contactsResult;
+    }
+
+    return { result: 'ok', error: null };
   }
 }
 module.exports = GroupsModel;

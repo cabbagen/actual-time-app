@@ -9,6 +9,7 @@ const chatRouterMap = {
     ['/saveContactInfo']: chatController.saveContactInfo.bind(chatController),
     ['/getContactInfos']: chatController.getContactInfos.bind(chatController),
     ['/getGroupInfos']: chatController.getGroupInfos.bind(chatController),
+    ['/createContactFriend']: chatController.createContactFriend.bind(chatController),
   },
 };
 

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const BaseController = require('./base.controller');
 const ContactsModel = require('../model/contacts.model').init();
 const MessagesModel = require('../model/messages.model').init();
@@ -18,7 +19,7 @@ class ChatController extends BaseController {
 
   // 获取 IM 用户相关信息
   async getContactInfo(request, response) {
-    const { appkey, id } = request.query;
+    const { appkey, id } = request.headers;
     
     if (utils.checkType(appkey) !== 'String') {
       return response.json({ state: 201, msg: 'appkey 错误', data: null });
@@ -42,12 +43,13 @@ class ChatController extends BaseController {
       recentContacts: concactUnreadMessagesResult.result,
     });
 
-    return response.json({ state: 200, msg: null, data });
+    return response.json({ state: 200, msg: null, data: data });
   }
 
   // 保存 IM 用户信息
   async saveContactInfo(request, response) {
-    const { id, appkey, nickname, avator } = request.body;
+    const { nickname, avator } = request.body;
+    const { id, appkey } = request.headers;
 
     if (utils.checkType(appkey) !== 'String') {
       return response.json({ state: 201, msg: 'appkey 错误', data: null });
@@ -69,15 +71,16 @@ class ChatController extends BaseController {
 
   // 查询 IM 用户列表
   async getContactInfos(request, response) {
-    const { appkey, type = 1, search = '', pageIndex = 0, pageSize = 10 } = request.body;
+    const { type = 1, search = '', pageIndex = 0, pageSize = 10 } = request.body;
+    const { appkey, id } = request.headers;
 
     if (utils.checkType(appkey) !== 'String') {
       return response.json({ state: 201, msg: 'appkey 错误', data: null });
     }
     const queryConditionMap = {
-      1: { $or: [{ nickname: { $regex: search } }, { username: { $regex: search } }] }, // 综合查询
-      2: { nickname: { $regex: search } },  // nickname 查询
-      3: { username: { $regex: search } },  // username 查询
+      1: { $or: [{ nickname: { $regex: search }, _id: { $ne: mongoose.Types.ObjectId(id)} }, { username: { $regex: search }, _id: { $ne: mongoose.Types.ObjectId(id)} }] }, // 综合查询
+      2: { nickname: { $regex: search }, _id: { $ne: mongoose.Types.ObjectId(id) } },  // nickname 查询
+      3: { username: { $regex: search }, _id: { $ne: mongoose.Types.ObjectId(id) } },  // username 查询
     };
 
     const contactsResult = await ContactsModel.getContactInfos(appkey, queryConditionMap[type], pageIndex, pageSize);
@@ -91,7 +94,8 @@ class ChatController extends BaseController {
 
   // 查询 IM 群组列表
   async getGroupInfos(request, response) {
-    const { appkey, type = 1, search = '', pageIndex = 0, pageSize = 10 } = request.body;
+    const { type = 1, search = '', pageIndex = 0, pageSize = 10 } = request.body;
+    const { appkey } = request.headers;
 
     if (utils.checkType(appkey) !== 'String') {
       return response.json({ state: 201, msg: 'appkey 错误', data: null });
@@ -106,6 +110,26 @@ class ChatController extends BaseController {
     }
 
     return response.json({ state: 200, msg: null, data: groupsResult.result });
+  }
+
+  // 添加联系人好友
+  async createContactFriend(request, response) {
+    const { appkey } = request.headers;
+    const { contactId, friendId } = request.body;
+
+    const result = await ContactsModel.createContactFriend(appkey, contactId, friendId);
+
+    response.json(result);
+  }
+
+  // 移除联系人好友
+  async removeContactFriend(request, response) {
+    const { appkey } = request.headers;
+    const { contactId, friendId } = request.body;
+
+    const result = await ContactsModel.removeContactFriend(appkey, contactId, friendId);
+
+    response.json(result);
   }
 }
 

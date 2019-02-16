@@ -16,11 +16,9 @@ class SocketChatService {
   }
 
   registerChatService() {
-    this.chat = this.io
-      .of(SocketChatService.socketPath)
-      .on(EventCenter.im_connection, (socket) => {
-        registEventHandle(socket);
-      });
+    this.chat = this.io.of(SocketChatService.socketPath).on(EventCenter.im_connection, (socket) => {
+      registEventHandle(socket);
+    });
   }
 }
 
