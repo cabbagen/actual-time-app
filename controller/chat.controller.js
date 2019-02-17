@@ -131,6 +131,36 @@ class ChatController extends BaseController {
 
     response.json(result);
   }
+
+  // 加入小组
+  async contactJoinGroup(request, response) {
+    const { groupId, contactId } = request.body;
+    const { appkey } = request.headers;
+
+    const result = await GroupsModel.createGroupMember(appkey, groupId, contactId);
+
+    response.json(result);
+  }
+
+  // 离开小组
+  async contactLeaveGroup(request, response) {
+    const { groupId, contactId } = request.body;
+    const { appkey } = request.headers;
+
+    const result = await GroupsModel.removeGroupMember(appkey, groupId, contactId);
+
+    response.json(result);
+  }
+
+  // 解散小组
+  async disbandGroup(request, response) {
+    const { groupId, contactId } = request.body;
+    const { appkey } = request.headers;
+
+    const result = await GroupsModel.disbandGroup(appkey, groupId, contactId);
+
+    response.json(result);
+  }
 }
 
 module.exports = ChatController;

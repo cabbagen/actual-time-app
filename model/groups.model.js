@@ -196,5 +196,48 @@ class GroupsModel extends BaseModel {
 
     return { result: 'ok', error: null };
   }
+
+  /**
+   * 解散群组
+   * @param {String} appkey 
+   * @param {String} groupId 
+   * @param {String} creatorId 
+   */
+  async disbandGroup(appkey, groupId, creatorId) {
+    const isGroupCreator = await this.isGroupCreator(appkey, groupId, creatorId);
+
+    if (utils.checkType(isGroupCreator) !== 'Boolean' || !isGroupCreator) {
+      return { result: null, error: '您不是群主，没有权限操作' };
+    }
+
+    const result = await this.removeGroupInfos(appkey, [groupId]);
+
+    if (result.error) {
+      return result;
+    }
+
+    return { result: 'ok', error: null };
+  }
+
+  /**
+   * 是否为群主
+   * @param {*} appkey 
+   * @param {*} groupId 
+   * @param {*} creatorId 
+   */
+  async isGroupCreator(appkey, groupId, creatorId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(groupId) !== 'String' || utils.checkType(creatorId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const groupInfoResult = await this.getGroupInfo(appkey, groupId);
+
+    if (groupInfoResult.error) {
+      return groupInfoResult;
+    }
+
+    return groupInfoResult.result.creator = creatorId;
+  }
 }
+
 module.exports = GroupsModel;
