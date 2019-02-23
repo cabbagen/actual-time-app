@@ -15,24 +15,67 @@ class MessagesModel extends BaseModel {
     this.messagesModel = mongoose.model('messages', messagesSchema);
   }
 
-  async addMessage(message) {
-    return this.messagesModel.create(message).then(this.resolve).catch(this.reject);
+  /**
+   * 添加消息
+   * @param {String} appkey 
+   * @param {Object[]} messages 
+   */
+  async addMessages(appkey, messages) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(messages) !== 'Array') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const messageInfos = messages.map((message) => {
+      return Object.assign({}, message, { appkey });
+    });
+
+    return this.messagesModel.create(messageInfos).then(this.resolve).catch(this.reject);
   }
 
-  async getMessages(condition) {
-    return this.messagesModel.find(condition)
-      .populate('message_source')
-      .populate('message_target')
-      .exec()
-      .then(this.resolve)
-      .catch(this.reject);
+  /**
+   * 获取消息列表
+   * @param {String} appkey 
+   * @param {Object} condition 
+   */
+  async getMessages(appkey, condition) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(condition) !== 'Array') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const realCondition = Object.assign({}, condition, { appkey });
+
+    return this.messagesModel.find(realCondition).populate('message_source').populate('message_target').exec().then(this.resolve).catch(this.reject);
   }
 
-  async updateMessages(condition, updatedInfo) {
-    return this.messagesModel.update(condition, updatedInfo, { multi: true })
-      .exec()
-      .then(this.resolve)
-      .catch(this.reject);
+  /**
+   * 更新指定条件的多条信息
+   * @param {String} appkey 
+   * @param {Object} condition 
+   * @param {Object} updatedInfo 
+   */
+  async updateMessages(appkey, condition, updatedInfo) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(condition) !== 'Object' || utils.checkType(updatedInfo) !== 'Object') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const realCondition = Object.assign({}, condition, { appkey });
+    
+    return this.messagesModel.update(realCondition, updatedInfo, { multi: true }).exec().then(this.resolve).catch(this.reject);
+  }
+
+  /**
+   * 删除消息记录
+   * @param {String} appkey 
+   * @param {String[]} messageIds 
+   */
+  async removeMessages(appkey, messageIds) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(messageIds) !== 'Array') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const realMessageIds = messageIds.map(messageId => mongoose.Types.ObjectId(messageId));
+
+    return this.messagesModel.deleteMany({ appkey, _id: { $in: realMessageIds } }).exec().then(this.resolve).catch(this.reject);
   }
 
   /**
@@ -44,6 +87,7 @@ class MessagesModel extends BaseModel {
     if (utils.checkType(appkey) !== 'String' || utils.checkType(contactId) !== 'String') {
       return { result: null, error: this.paramsError };
     }
+
     return this.messagesModel.aggregate([
       {
         $match: {
@@ -127,67 +171,6 @@ class MessagesModel extends BaseModel {
       };
     }
     return this.messagesModel.find(searchCondition).skip(condition.pageSize * condition.pageIndex).limit(condition.pageSize).then(this.resolve).catch(this.reject);
-  }
- 
-  /**
-   * 添加消息记录
-   * @param {String} appkey 
-   * @param {Object[]} messageInfos 
-   */
-  async addMessageInfos(appkey, messageInfos) {
-    if (utils.checkType(appkey) !== 'String' || utils.checkType(messageInfos) !== 'Array') {
-      return { result: null, error: this.paramsError };
-    }
-    const realMessageInfos = messageInfos.map((messageInfo) => {
-      return Object.assign({}, messageInfo, { appkey });
-    });
-
-    return this.messagesModel.create(realMessageInfos).then(this.resolve).catch(this.reject);
-  }
-
-  /**
-   * 获取消息信息
-   * @param {String} appkey 
-   * @param {String} messageId 
-   */
-  async getMessageInfo(appkey, messageId) {
-    if (utils.checkType(appkey) !== 'String' || utils.checkType(messageId) !== 'String') {
-      return { result: null, error: this.paramsError };
-    }
-
-    return this.messagesModel.findOne({ appkey, _id: mongoose.Types.ObjectId(messageId) }).exec().then(this.resolve).catch(this.reject);
-  }
-
-  /**
-   * 删除消息记录
-   * @param {String} appkey 
-   * @param {String[]} messageIds 
-   */
-  async removeMessages(appkey, messageIds) {
-    if (utils.checkType(appkey) !== 'String' || utils.checkType(messageIds) !== 'Array') {
-      return { result: null, error: this.paramsError };
-    }
-
-    const realMessageIds = messageIds.map(messageId => mongoose.Types.ObjectId(messageId));
-
-    return this.messagesModel.remove({ appkey, _id: { $in: realMessageIds } }).exec().then(this.resolve).catch(this.reject);
-  }
-
-  /**
-   * 更新消息记录
-   * @param {String} appkey 
-   * @param {String} messageId 
-   * @param {Object} messageInfo 
-   */
-  async updateMessageInfo(appkey, messageId, messageInfo) {
-    if (utils.checkType(appkey) !== 'String' || utils.checkType(messageId) !== 'String' || utils.checkType(messageInfo) !== 'Object') {
-      return { result: null, error: this.paramsError };
-    }
-
-    const condition = { appkey, _id: mongoose.Types.ObjectId(messageId) };
-    const document = Object.assign({}, messageInfo, { appkey });
-
-    return this.messagesModel.update(condition,document).exec().then(this.resolve).catch(this.reject);
   }
 }
 

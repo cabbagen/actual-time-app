@@ -13,11 +13,16 @@ class NoticesModel extends BaseModel {
     this.noticesModel = mongoose.model('notices', noticesSchema);
   }
 
-  // 添加通知
+  /**
+   * 创建通知消息
+   * @param {String} appkey 
+   * @param {Object[]} noticeInfos 
+   */
   async createNoticeInfos(appkey, noticeInfos) {
     if (utils.checkType(appkey) !== 'String' || utils.checkType(noticeInfos) !== 'Array') {
       return { result: null, error: this.paramsError };
     }
+
     const realNoticeInfos = noticeInfos.map((noticeInfo) => {
       return Object.assign({}, noticeInfo, { appkey });
     });
@@ -25,7 +30,11 @@ class NoticesModel extends BaseModel {
     return this.noticesModel.create(realNoticeInfos).then(this.resolve).catch(this.reject);
   }
 
-  // 删除通知消息
+  /**
+   * 删除通知消息
+   * @param {String} appkey 
+   * @param {String[]} noticeIds 
+   */
   async removeNoticeInfos(appkey, noticeIds) {
     if (utils.checkType(appkey) !== 'String' || utils.checkType(noticeIds) !== 'Array') {
       return { result: null, error: this.paramsError };
@@ -38,7 +47,11 @@ class NoticesModel extends BaseModel {
     return this.noticesModel.deleteMany(condition).exec().then(this.resolve).catch(this.reject);
   }
 
-  // 获取消息详情
+  /**
+   * 获取消息详情
+   * @param {String} appkey 
+   * @param {String} noticeId 
+   */
   async getNoticeInfo(appkey, noticeId) {
     if (utils.checkType(appkey) !== 'String' || utils.checkType(noticeId) !== 'String') {
       return { result: null, error: this.paramsError };
@@ -49,7 +62,12 @@ class NoticesModel extends BaseModel {
     return this.noticesModel.findOne(condition).exec().then(this.resolve).catch(this.reject);
   }
 
-  // 更新消息信息
+  /**
+   * 更新消息信息
+   * @param {String} appkey 
+   * @param {String} noticeId 
+   * @param {Object} updatedInfo 
+   */
   async updateNoticeInfo(appkey, noticeId, updatedInfo) {
     if (utils.checkType(appkey) !== 'String' || utils.checkType(noticeId) !== 'String' || utils.checkType(updatedInfo) !== 'Object') {
       return { result: null, error: this.paramsError };

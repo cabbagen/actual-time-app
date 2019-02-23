@@ -15,8 +15,7 @@ module.exports = function() {
     const tokenInfo = tokenProvider.validateToken(appName, token);    
     
     if (tokenInfo.state !== 0) {
-      res.json({ tokenInfo });
-      return;
+      return res.json({ tokenInfo });
     }
     next();
   }

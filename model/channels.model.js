@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const BaseModel = require('./base.model');
 const channelsSchema = require('../schema/channels.schema');
+const utils = require('../providers/utils.provider');
 
 class ChannelsModel extends BaseModel {
 
@@ -15,60 +16,78 @@ class ChannelsModel extends BaseModel {
 
   /**
    * 创建聊天通道
+   * @param {String} appkey
    * @param {Object} channelInfo 
    */
-  async createChannel(channelInfo) {
-    return this.channelsModel.create(channelInfo).then(this.resolve).catch(this.reject);
+  async createChannels(appkey, channelInfo) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(channelInfo) !== 'Object') {
+      return { result: null, error: this.paramsError };
+    }
+    const realChannelInfo = Object.assign({}, channelInfo, { appkey });
+    return this.channelsModel.create([realChannelInfo]).then(this.resolve).catch(this.reject);
   }
 
   /**
    * 更新聊天通道
+   * @param {String} appkey
    * @param {Object} condition
    * @param {Object} updatedInfo
    */
-  async updateChannel(condition, updatedInfo) {
-    return this.channelsModel.update(condition, updatedInfo)
-      .exec()
-      .then(this.resolve)
-      .catch(this.reject);
+  async updateChannel(appkey, condition, updatedInfo) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(condition) !== 'Object' || utils.checkType(updatedInfo) !== 'Object') {
+      return { result: null, error: this.paramsError };
+    }
+    const realCondition = Object.assign({}, condition, { appkey });
+
+    return this.channelsModel.update(realCondition, updatedInfo).exec().then(this.resolve).catch(this.reject);
   }
 
   /**
    * 通过联系人获取聊天通道信息
+   * @param {String} appkey
    * @param {String} sourceConcactId 
    * @param {String} targetConcactId 
    */
-  async getChannelInfo(sourceConcactId, targetConcactId) {
-    const channelFirstId = `${sourceConcactId}@@${targetConcactId}`;
-    const channelSeconedId = `${targetConcactId}@@${sourceConcactId}`;
+  async getChannelInfo(appkey, sourceConcactId, targetConcactId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(sourceConcactId) !== 'String' || utils.checkType(targetConcactId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
 
-    return this.channelsModel.findOne({ channel_id: { $in: [channelFirstId, channelSeconedId] } })
-      .exec()
-      .then(this.resolve)
-      .catch(this.reject);
+    const relevantChannels = [
+      `${sourceConcactId}@@${targetConcactId}`,
+      `${targetConcactId}@@${sourceConcactId}`,
+    ];
+
+    return this.channelsModel.findOne({ appkey, channel_id: { $in: relevantChannels } }).exec().then(this.resolve).catch(this.reject);
   }
 
   /**
+   * 仅适用于单聊模式
    * 获取用户当前使用的聊天通道
+   * @param {String} appkey
    * @param {String} contactId 
    */
-  async getCurrentChannel(contactId) {
-    return this.channelsModel.findOne({ channel_id: { $regex: contactId }, channel_state: 1 })
-      .exec()
-      .then(this.resolve)
-      .catch(this.reject);
+  async getCurrentChannel(appkey, contactId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(contactId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const condition = { appkey, channel_state: 1, channel_id: { $regex: contactId } };
+
+    return this.channelsModel.findOne(condition).exec().then(this.resolve).catch(this.reject);
   }
 
   /**
    * 获取联系人相关的所有聊天信道
+   * @param {String} appkey
    * @param {String} contactId 
-   * @param {Object} selectedFeildObj 
    */
-  async getRelatedChannels(contactId, selectedFeildObj) {
-    return this.channelsModel.find({ channel_id: { $regex: contactId } }, selectedFeildObj)
-      .exec()
-      .then(this.resolve)
-      .catch(this.reject);
+  async getRelatedChannels(appkey, contactId, selectedFeildObj) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(contactId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
+
+    return this.channelsModel.find({ channel_id: { $regex: contactId } }).exec().then(this.resolve).catch(this.reject);
   }
 }
 

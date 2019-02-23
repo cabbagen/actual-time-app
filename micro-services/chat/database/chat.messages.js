@@ -32,12 +32,13 @@ class MessageService {
     return messagesResult.result[0];
   }
 
-  async getSignalUnreadMessages(sourceId, targetId) {
+  async getSignalUnreadMessages(appkey, sourceId, targetId) {
     const condition = {
       $or: [
         { message_channel: `${sourceId}@@${targetId}` },
         { message_channel: `${targetId}@@${sourceId}` }
       ],
+      appkey,
       message_state: 0,
     };
 
@@ -49,11 +50,15 @@ class MessageService {
     return unreadMessagesResult.result;
   }
 
-  async readMessages(channelId) {
+  async readMessages(appkey, channelId) {
     const condition = { message_channel: channelId };
     const params = { message_state: 1 };
 
-    MessageModel.updateMessages(condition, params);
+    MessageModel.updateMessages(appkey, condition, params);
+  }
+
+  async getGroupHistoryMessages(appkey, channelId) {
+    return MessageModel.getGroupMessages(appkey, channelId, { pageIndex: 0, pageSize: 1000 });
   }
 }
 

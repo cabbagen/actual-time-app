@@ -46,10 +46,9 @@ class GroupsModel extends BaseModel {
     const realGroupIds = groupIds.map(groupId => mongoose.Types.ObjectId(groupId));
     const condition = { _id: { $in: realGroupIds }, appkey };
 
-    return this.groupsModel.remove(condition).exec().then(this.resolve).catch(this.reject);
+    return this.groupsModel.deleteMany(condition).exec().then(this.resolve).catch(this.reject);
   }
 
-  // 
   /**
    * 获取群组详情
    * @param {String} appkey 
@@ -210,20 +209,14 @@ class GroupsModel extends BaseModel {
       return { result: null, error: '您不是群主，没有权限操作' };
     }
 
-    const result = await this.removeGroupInfos(appkey, [groupId]);
-
-    if (result.error) {
-      return result;
-    }
-
-    return { result: 'ok', error: null };
+    return this.removeGroupInfos(appkey, [groupId]);
   }
 
   /**
    * 是否为群主
-   * @param {*} appkey 
-   * @param {*} groupId 
-   * @param {*} creatorId 
+   * @param {String} appkey 
+   * @param {String} groupId 
+   * @param {String} creatorId 
    */
   async isGroupCreator(appkey, groupId, creatorId) {
     if (utils.checkType(appkey) !== 'String' || utils.checkType(groupId) !== 'String' || utils.checkType(creatorId) !== 'String') {
@@ -237,6 +230,27 @@ class GroupsModel extends BaseModel {
     }
 
     return groupInfoResult.result.creator = creatorId;
+  }
+
+  /**
+   * 获取群组群主信息
+   * @param {String} appkey 
+   * @param {String} groupId 
+   */
+  async getGroupCreatorInfo(appkey, groupId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(groupId) !== 'String') {
+      return { result: null, error: this.paramsError };
+    }
+
+    const groupInfoResult = await this.getGroupInfo(appkey, groupId);
+
+    if (groupInfoResult.error) {
+      return groupInfoResult;
+    }
+
+    const creator = groupInfoResult.result.creator;
+
+    return this.contactsModel.findOne({ appkey, _id: mongoose.Types.ObjectId(creator) }).exec().then(this.resolve).catch(this.reject);
   }
 }
 

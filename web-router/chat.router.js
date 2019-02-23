@@ -10,6 +10,10 @@ const chatRouterMap = {
     ['/getContactInfos']: chatController.getContactInfos.bind(chatController),
     ['/getGroupInfos']: chatController.getGroupInfos.bind(chatController),
     ['/createContactFriend']: chatController.createContactFriend.bind(chatController),
+    ['/removeContactFriend']: chatController.removeContactFriend.bind(chatController),
+    ['/contactJoinGroup']: chatController.contactJoinGroup.bind(chatController),
+    ['/contactLeaveGroup']: chatController.contactLeaveGroup.bind(chatController),
+    ['/disbandGroup']: chatController.disbandGroup.bind(chatController),
   },
 };
 

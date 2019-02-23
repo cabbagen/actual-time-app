@@ -21,11 +21,8 @@ class ChatController extends BaseController {
   async getContactInfo(request, response) {
     const { appkey, id } = request.headers;
     
-    if (utils.checkType(appkey) !== 'String') {
-      return response.json({ state: 201, msg: 'appkey 错误', data: null });
-    }
-    if (utils.checkType(id) !== 'String') {
-      return response.json({ state: 202, msg: 'id 参数错误', data: null });
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(id) !== 'String') {
+      return response.json({ state: 201, msg: '鉴权信息错误', data: null });
     }
 
     const contactInfoResult = await ContactsModel.getContactRelatedInfo(appkey, id);
@@ -51,11 +48,11 @@ class ChatController extends BaseController {
     const { nickname, avator } = request.body;
     const { id, appkey } = request.headers;
 
-    if (utils.checkType(appkey) !== 'String') {
-      return response.json({ state: 201, msg: 'appkey 错误', data: null });
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(id) !== 'String') {
+      return response.json({ state: 201, msg: '鉴权信息错误', data: null });
     }
 
-    if (utils.checkType(id) !== 'String' || utils.checkType(nickname) !== 'String' || utils.checkType(avator) !== 'String') {
+    if (utils.checkType(avator) !== 'String') {
       return response.json({ state: 202, msg: '参数传递错误', data: null });
     }
 
@@ -74,9 +71,10 @@ class ChatController extends BaseController {
     const { type = 1, search = '', pageIndex = 0, pageSize = 10 } = request.body;
     const { appkey, id } = request.headers;
 
-    if (utils.checkType(appkey) !== 'String') {
-      return response.json({ state: 201, msg: 'appkey 错误', data: null });
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(id) !== 'String') {
+      return response.json({ state: 201, msg: '鉴权信息错误', data: null });
     }
+
     const queryConditionMap = {
       1: { $or: [{ nickname: { $regex: search }, _id: { $ne: mongoose.Types.ObjectId(id)} }, { username: { $regex: search }, _id: { $ne: mongoose.Types.ObjectId(id)} }] }, // 综合查询
       2: { nickname: { $regex: search }, _id: { $ne: mongoose.Types.ObjectId(id) } },  // nickname 查询
@@ -86,7 +84,7 @@ class ChatController extends BaseController {
     const contactsResult = await ContactsModel.getContactInfos(appkey, queryConditionMap[type], pageIndex, pageSize);
 
     if (contactsResult.error !== null) {
-      return response.json({ state: 203, msg: contactsResult.error, data: null });
+      return response.json({ state: 202, msg: contactsResult.error, data: null });
     }
 
     return response.json({ state: 200, msg: null, data: contactsResult.result });
@@ -95,10 +93,10 @@ class ChatController extends BaseController {
   // 查询 IM 群组列表
   async getGroupInfos(request, response) {
     const { type = 1, search = '', pageIndex = 0, pageSize = 10 } = request.body;
-    const { appkey } = request.headers;
+    const { appkey, id } = request.headers;
 
-    if (utils.checkType(appkey) !== 'String') {
-      return response.json({ state: 201, msg: 'appkey 错误', data: null });
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(id) !== 'String') {
+      return response.json({ state: 201, msg: '鉴权信息错误', data: null });
     }
     const queryConditionMap = {
       1: { group_name: { $regex: search } },  // 根据 group_name 查询
@@ -119,7 +117,11 @@ class ChatController extends BaseController {
 
     const result = await ContactsModel.createContactFriend(appkey, contactId, friendId);
 
-    response.json(result);
+    if (result.error) {
+      return response.json({ state: 201, msg: result.error, data: null });
+    }
+
+    return response.json({ state: 200, msg: null, data: '添加好友成功' });
   }
 
   // 移除联系人好友
@@ -129,17 +131,29 @@ class ChatController extends BaseController {
 
     const result = await ContactsModel.removeContactFriend(appkey, contactId, friendId);
 
-    response.json(result);
+    if (result.error) {
+      return response.json({ state: 201, msg: result.error, data: null });
+    }
+
+    return response.json({ state: 200, msg: null, data: '删除好友成功' });
   }
 
   // 加入小组
   async contactJoinGroup(request, response) {
     const { groupId, contactId } = request.body;
-    const { appkey } = request.headers;
+    const { appkey, id } = request.headers;
+
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(id) !== 'String') {
+      return response.json({ state: 201, msg: '鉴权信息错误', data: null });
+    }
 
     const result = await GroupsModel.createGroupMember(appkey, groupId, contactId);
 
-    response.json(result);
+    if (result.error) {
+      return response.json({ state: 202, msg: result.error, data: null });
+    }
+
+    return response.json({ state: 200, msg: null, data: '加入小组成功' });
   }
 
   // 离开小组
@@ -149,7 +163,11 @@ class ChatController extends BaseController {
 
     const result = await GroupsModel.removeGroupMember(appkey, groupId, contactId);
 
-    response.json(result);
+    if (result.error) {
+      return response.json({ state: 201, msg: result.error, data: null });
+    }
+
+    return response.json({ state: 200, msg: null, data: '退出小组成功' });
   }
 
   // 解散小组
@@ -159,7 +177,11 @@ class ChatController extends BaseController {
 
     const result = await GroupsModel.disbandGroup(appkey, groupId, contactId);
 
-    response.json(result);
+    if (result.error) {
+      return response.json({ state: 201, msg: result.error, data: null });
+    }
+
+    return response.json({ state: 200, msg: null, data: '解散小组成功' });
   }
 }
 

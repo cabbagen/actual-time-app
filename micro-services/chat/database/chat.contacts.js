@@ -19,6 +19,7 @@ class ContactService {
    */
   async getContactIsOnLine(appkey, contactId) {
     const contactInfoResult = await ContactModel.getContactInfo(appkey, contactId);
+
     if (contactInfoResult.error) {
       return 0;
     }

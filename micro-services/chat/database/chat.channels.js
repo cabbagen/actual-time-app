@@ -26,25 +26,33 @@ class ChannelService {
     ChannelModel.updateChannel(condition, updatedDoc);
   }
 
-  async resetIMChannel(sourceId, targetId) {
+  async createIMGroupChannel(appkey, channelId) {
+
+  }
+
+  async resetIMChannel(appkey, sourceId, targetId) {
     const chatChannelInfoResult = await ChannelModel.getCurrentChannel(sourceId);
 
     if (!chatChannelInfoResult.result) {
       return;
     }
 
-    const updatedDoc = {
+    const updated = {
       channel_state: 0,
       channel_members: chatChannelInfoResult.result.channel_members.length === 2 ? [targetId] : [],
     };
 
-    ChannelModel.updateChannel({ _id: chatChannelInfoResult.result._id }, updatedDoc);
+    ChannelModel.updateChannel({ _id: chatChannelInfoResult.result._id, appkey }, updated);
   }
 
-  async getChannelInfoBySourceIdAndTargetId(sourceId, targetId) {
-    const channelInfoResult = await ChannelModel.getChannelInfo(sourceId, targetId);
+  async getChannelInfoBySourceIdAndTargetId(appkey, sourceId, targetId) {
+    const channelInfoResult = await ChannelModel.getChannelInfo(appkey, sourceId, targetId);
 
     return channelInfoResult.result;
+  }
+
+  async getChannelInfoBtChannelId(channelId) {
+
   }
 
   async getContactRelatedChannelIds(concactId) {
