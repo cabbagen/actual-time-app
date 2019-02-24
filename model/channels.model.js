@@ -22,11 +22,14 @@ class ChannelsModel extends BaseModel {
    * @param {Object} channelInfo 
    */
   async createChannels(appkey, channelInfos) {
-    if (utils.checkType(appkey) !== 'String' || utils.checkType(channelInfo) !== 'Object') {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(channelInfos) !== 'Array') {
       return { result: null, error: this.paramsError };
     }
-    const realChannelInfo = Object.assign({}, channelInfo, { appkey });
-    return this.channelsModel.create(realChannelInfo).then(this.resolve).catch(this.reject);
+    const realChannelInfos = channelInfos.map((channelInfo) => {
+      return Object.assign({}, channelInfo, { appkey });
+    });
+
+    return this.channelsModel.create(realChannelInfos).then(this.resolve).catch(this.reject);
   }
 
   /**

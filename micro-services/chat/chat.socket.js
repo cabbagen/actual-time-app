@@ -1,4 +1,4 @@
-const { EventCenter } = require('./events/chat.event');
+const { EventCenter } = require('./index');
 const { registEventHandle } = require('./handles/handle.events');
 
 let chatApplication = null;

@@ -11,7 +11,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
 // chat socket service
-const { SocketChatService } = require('./micro-services/chat/index');
+const { SocketChatService } = require('./micro-services/chat/chat.socket');
 SocketChatService.init(io);
 
 // 初始化日志服务

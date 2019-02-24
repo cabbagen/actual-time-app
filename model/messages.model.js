@@ -38,13 +38,13 @@ class MessagesModel extends BaseModel {
    * @param {Object} condition 
    */
   async getMessages(appkey, condition) {
-    if (utils.checkType(appkey) !== 'String' || utils.checkType(condition) !== 'Array') {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(condition) !== 'Object') {
       return { result: null, error: this.paramsError };
     }
 
     const realCondition = Object.assign({}, condition, { appkey });
 
-    return this.messagesModel.find(realCondition).populate('message_source').populate('message_target').exec().then(this.resolve).catch(this.reject);
+    return this.messagesModel.find(realCondition).populate('message_source').populate('message_target').populate('message_target_group').exec().then(this.resolve).catch(this.reject);
   }
 
   /**

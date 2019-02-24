@@ -1,11 +1,11 @@
-const { SocketChatService } = require('./chat.socket');
 
 const EventCenter = {
   im_connection: 'connection',
   im_online: 'im_online',
   im_disconnecting: 'disconnecting',
   im_notice: 'im_notice',
-  im_signal_chat: 'im_signal_chat',
+  im_single_chat: 'im_single_chat',
+  im_group_chat: 'im_group_chat',
   im_create_channel: 'im_create_channel',
 };
 
@@ -22,5 +22,6 @@ const NoticeEventCenter = {
 };
 
 module.exports = {
-  SocketChatService, EventCenter, NoticeEventCenter
+  EventCenter, NoticeEventCenter
 };
+

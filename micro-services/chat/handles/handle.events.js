@@ -1,16 +1,18 @@
-const { EventCenter } = require('../events/chat.event');
+const { EventCenter } = require('../index');
 const { handleIMLogin } = require('./handle.login');
 const { handleIMLogout } = require('./handle.logout');
 const { handleIMNotice } = require('./handle.notice');
-const { handleIMSignalChat } = require('./handle.signal.chat');
-const { handleCreateChannel } = require('./handle.channel');
+const { handleIMSingleChat } = require('./handle.single.chat');
+const { handleIMGroupChat } = require('./handle.group.chat');
+const { handleChangeChannel } = require('./handle.channel');
 
 const EventHandles = {
   [EventCenter.im_online]: handleIMLogin,
   [EventCenter.im_disconnecting]: handleIMLogout,
   [EventCenter.im_notice]: handleIMNotice,
-  [EventCenter.im_signal_chat]: handleIMSignalChat,
-  [EventCenter.im_create_channel]: handleCreateChannel,
+  [EventCenter.im_single_chat]: handleIMSingleChat,
+  [EventCenter.im_group_chat]: handleIMGroupChat,
+  [EventCenter.im_create_channel]: handleChangeChannel,
 };
 
 const registEventHandle = function(socket) {

@@ -11,19 +11,30 @@ const { MessagesService } = require('../services/messages.service');
 const { EventCenter } = require('../index');
 
 exports.handleChangeChannel = async function(socket, message) {
-  const { appkey, sourceId, targetId, channelType } = message;
-  const channelInfoResult = channelType === 1
-    ? await ChannelsService.createSingleChannel(appkey, sourceId, targetId)
-    : await ChannelsService.createGroupChannel(appkey, targetId);
+  const { channelType } = message;
+
+  if (channelType === '1') {
+    handleSingleChangeChannel(socket, message);
+    return;
+  }
+
+  handleGroupChangeChannel(socket, message);
+}
+
+async function handleSingleChangeChannel(socket, message) {
+  const { appkey, sourceId, targetId } = message;
+  const channelInfoResult = await ChannelsService.createSingleChannel(appkey, sourceId, targetId);
 
   if (channelInfoResult.error) {
+    console.error(fullMessageInfoResult.error);
     return;
   }
 
   const channelInfo = channelInfoResult.result;
-  const unReadedMessagesResult = await ChannelsService.getUnReadedChannelMessages(appkey, channelInfo.channel_id);
+  const unReadedMessagesResult = await MessagesService.getUnReadedChannelMessages(appkey, channelInfo.channel_id);
 
   if (unReadedMessagesResult.error) {
+    console.error(fullMessageInfoResult.error);
     return;
   }
 
@@ -33,10 +44,36 @@ exports.handleChangeChannel = async function(socket, message) {
   const sendMessage = {
     channelId: channelInfo.channel_id,
     eventType: EventCenter.im_create_channel,
-    data: unReadedMessageResult.result,
+    data: unReadedMessagesResult.result,
   };
 
   socket.emit(EventCenter.im_create_channel, sendMessage);
 }
 
+async function handleGroupChangeChannel(socket, message) {
+  const { appkey, targetId } = message;
+  const channelInfoResult = await ChannelsService.createGroupChannel(appkey, targetId);
+
+  if (channelInfoResult.error) {
+    console.error(fullMessageInfoResult.error);
+    return;
+  }
+
+  const channelInfo = channelInfoResult.result;
+
+  const historyMessagesResult = await MessagesService.getChannelHistoryMessages(appkey, channelInfo.channel_id);
+
+  if (historyMessagesResult.error) {
+    console.error(historyMessagesResult.error);
+    return;
+  }
+
+  const sendMessage = {
+    channelId: channelInfo.channel_id,
+    eventType: EventCenter.im_create_channel,
+    data: historyMessagesResult.result,
+  };
+
+  socket.emit(EventCenter.im_create_channel, sendMessage);
+}
 

@@ -1,10 +1,10 @@
 // 通知消息借用全局的 im_global_notice 统一处理 
 // 由客户端决定使用与否
 
-const { EventCenter, NoticeEventCenter } = require('../index');
 const { ContactsService } = require('../services/contacts.service');
 const { NoticesService } = require('../services/notices.service');
 const { GroupsService } = require('../services/groups.service');
+const { EventCenter, NoticeEventCenter } = require('../index');
 
 /**
  * 添加好友用户通知
@@ -41,6 +41,7 @@ async function handleImAddGroup(socket, noticeInfo) {
   const creatorInfoResult = await GroupsService.getGroupCreatorInfo(noticeInfo.appkey, noticeInfo.target_group_id);
 
   if (creatorInfoResult.error) {
+    console.error(fullMessageInfoResult.error);
     return;
   }
 

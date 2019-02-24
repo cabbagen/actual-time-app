@@ -18,9 +18,13 @@ class ChannelsService {
    * @param {String} contactId 
    */
   async getContactRelatedChannelIds(appkey, contactId) {
-    const channels = await ChannelModel.getRelatedChannels(appkey, contactId);
+    const channelsResult = await ChannelModel.getRelatedChannels(appkey, contactId);
     
-    return channels.map(channel => channel.channel_id);
+    if (channelsResult.error) {
+      return [];
+    }
+
+    return channelsResult.result.map(channel => channel.channel_id);
   }
 
   /**
@@ -65,11 +69,17 @@ class ChannelsService {
       return channelInfoResult;
     }
 
-    const channelInfo = { channelId: groupId };
+    const channelInfo = { channel_id: groupId };
 
     return ChannelModel.createChannels(appkey, [channelInfo]);
   }
 
+  /**
+   * 通过 contactId 获取 channel 信息
+   * @param {String} appkey 
+   * @param {String} sourceId 
+   * @param {String} targetId 
+   */
   async getChannelInfoBySourceIdAndTargetId(appkey, sourceId, targetId) {
     return ChannelModel.getSingleChannelInfo(appkey, sourceId, targetId);
   }
