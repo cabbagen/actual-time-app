@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const BaseModel = require('./base.model');
 const channelsSchema = require('../schema/channels.schema');
+const contactsSchema = require('../schema/contacts.schema');
 const utils = require('../providers/utils.provider');
 
 class ChannelsModel extends BaseModel {
@@ -12,6 +13,7 @@ class ChannelsModel extends BaseModel {
   constructor(props) {
     super(props);
     this.channelsModel = mongoose.model('channels', channelsSchema);
+    this.contactModel = mongoose.model('contacts', contactsSchema);
   }
 
   /**
@@ -19,12 +21,12 @@ class ChannelsModel extends BaseModel {
    * @param {String} appkey
    * @param {Object} channelInfo 
    */
-  async createChannels(appkey, channelInfo) {
+  async createChannels(appkey, channelInfos) {
     if (utils.checkType(appkey) !== 'String' || utils.checkType(channelInfo) !== 'Object') {
       return { result: null, error: this.paramsError };
     }
     const realChannelInfo = Object.assign({}, channelInfo, { appkey });
-    return this.channelsModel.create([realChannelInfo]).then(this.resolve).catch(this.reject);
+    return this.channelsModel.create(realChannelInfo).then(this.resolve).catch(this.reject);
   }
 
   /**
@@ -43,12 +45,12 @@ class ChannelsModel extends BaseModel {
   }
 
   /**
-   * 通过联系人获取聊天通道信息
+   * 通过联系人获取单聊聊天通道信息
    * @param {String} appkey
    * @param {String} sourceConcactId 
    * @param {String} targetConcactId 
    */
-  async getChannelInfo(appkey, sourceConcactId, targetConcactId) {
+  async getSingleChannelInfo(appkey, sourceConcactId, targetConcactId) {
     if (utils.checkType(appkey) !== 'String' || utils.checkType(sourceConcactId) !== 'String' || utils.checkType(targetConcactId) !== 'String') {
       return { result: null, error: this.paramsError };
     }
@@ -62,19 +64,16 @@ class ChannelsModel extends BaseModel {
   }
 
   /**
-   * 仅适用于单聊模式
-   * 获取用户当前使用的聊天通道
-   * @param {String} appkey
-   * @param {String} contactId 
+   * 获取群聊聊天通道信息
+   * @param {String} appkey 
+   * @param {String} groupId 
    */
-  async getCurrentChannel(appkey, contactId) {
-    if (utils.checkType(appkey) !== 'String' || utils.checkType(contactId) !== 'String') {
+  async getGroupChannelInfo(appkey, groupId) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(groupId) !== 'String') {
       return { result: null, error: this.paramsError };
     }
 
-    const condition = { appkey, channel_state: 1, channel_id: { $regex: contactId } };
-
-    return this.channelsModel.findOne(condition).exec().then(this.resolve).catch(this.reject);
+    return this.channelsModel.findOne({ appkey, channel_id: groupId }).exec().then(this.resolve).catch(this.reject);
   }
 
   /**
@@ -82,12 +81,21 @@ class ChannelsModel extends BaseModel {
    * @param {String} appkey
    * @param {String} contactId 
    */
-  async getRelatedChannels(appkey, contactId, selectedFeildObj) {
+  async getRelatedChannels(appkey, contactId) {
     if (utils.checkType(appkey) !== 'String' || utils.checkType(contactId) !== 'String') {
       return { result: null, error: this.paramsError };
     }
 
-    return this.channelsModel.find({ channel_id: { $regex: contactId } }).exec().then(this.resolve).catch(this.reject);
+    const contactResult = await this.contactModel.findOne({ _id: mongoose.Types.ObjectId(contactId) }).exec().then(this.resolve).catch(this.reject);
+
+    if (contactResult.error) {
+      return contactResult;
+    }
+
+    const groupIds = contactResult.result.groups.map(groupId => groupId.toString());
+    const condition = { $or: [ { channel_id: { $regex: contactId } }, { channel_id: { $in: groupIds } } ] }
+
+    return this.channelsModel.find(condition).exec().then(this.resolve).catch(this.reject);
   }
 }
 

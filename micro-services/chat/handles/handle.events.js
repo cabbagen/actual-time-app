@@ -3,7 +3,7 @@ const { handleIMLogin } = require('./handle.login');
 const { handleIMLogout } = require('./handle.logout');
 const { handleIMNotice } = require('./handle.notice');
 const { handleIMSignalChat } = require('./handle.signal.chat');
-const { handleCreateChannel } = require('./handle.create.channel');
+const { handleCreateChannel } = require('./handle.channel');
 
 const EventHandles = {
   [EventCenter.im_online]: handleIMLogin,

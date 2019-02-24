@@ -1,5 +1,5 @@
-const { ContactService } = require('../database/chat.contacts');
+const { ContactsService } = require('../services/contacts.service');
 
 exports.handleIMLogout = function(socket) {
-  ContactService.logoutIMService(socket.client.id);
+  ContactsService.logoutIMService(socket.client.id);
 }

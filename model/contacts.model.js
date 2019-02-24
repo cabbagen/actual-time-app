@@ -80,29 +80,30 @@ class ContactsModel extends BaseModel {
   /**
    * 更新联系人信息
    * @param {String} appkey 
-   * @param {String} contactId 
+   * @param {Object} condition 
    * @param {Object} updatedInfo 
    */
-  async updateContactInfo(appkey, contactId, updatedInfo) {
-    if (utils.checkType(appkey) !== 'String' || utils.checkType(contactId) !== 'String' || utils.checkType(updatedInfo) !== 'Object') {
+  async updateContactInfo(appkey, condition, updatedInfo) {
+    if (utils.checkType(appkey) !== 'String' || utils.checkType(condition) !== 'Object' || utils.checkType(updatedInfo) !== 'Object') {
       return { result: null, error: this.paramsError };
     }
 
-    const condition = { _id: mongoose.Types.ObjectId(contactId), appkey };
-    return this.contactsModel.update(condition, updatedInfo).exec().then(this.resolve).catch(this.reject);
+    const realCondition = Object.assign({}, condition, { appkey });
+    return this.contactsModel.update(realCondition, updatedInfo).exec().then(this.resolve).catch(this.reject);
   }
 
   /**
-   * 通过 socketId 来进行上下线处理
-   * @param {String} socketId - 链接 socket.io 时分配的 socketId
-   * @param {Number} state - 用户的上下线状态
-   * @return {Object} 更新结果
+   * 不安全地更新联系人信息
+   * 仅限内部使用
+   * @param {Object} condition 
+   * @param {Object} updatedInfo 
    */
-  async setContactStatusBySocketId(socketId, state) {
-    if (typeof socketId === 'undefined') {
+  async unsafeUpdateContactInfo(condition, updatedInfo) {
+    if (utils.checkType(condition) !== 'Object' || utils.checkType(updatedInfo) !== 'Object') {
       return { result: null, error: this.paramsError };
-    };
-    return this.contactsModel.updateOne({ socket_id: socketId }, { state }).exec().then(this.resolve).catch(this.reject);
+    }
+
+    return this.contactsModel.update(condition, updatedInfo).exec().then(this.resolve).catch(this.reject);
   }
 
   /**
